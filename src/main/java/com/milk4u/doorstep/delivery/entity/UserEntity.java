@@ -5,39 +5,44 @@ import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class Customer {
+@Table(name = "user")
+public class UserEntity {
 	//Fields
 	@Id
-	@Column(name="CustomerID")
-	private int customerId;
+	@Column(name="USER_ID")
+	private int userId;
 	
-	@Column(name="Username")
+	@Column(name="USERNAME")
 	private String username;
 	
-	@Column(name="Password")
+	@Column(name="PASSWORD")
 	private String password;
 	
-	@Column(name="Name")
-	private String name;
-	
-	@Column(name="Email")
+	@Column(name="EMAIL")
 	private String email;
-
-	@Column(name="Postcode")
-	private String postcode;
 	
-	@Column(name="DateOfBirth")
+	@Column(name="FIRST_NAME")
+	private String fName;
+
+	@Column(name="LAST_NAME")
+	private String lName;
+	
+	@Column(name="DATE_OF_BIRTH")
 	private Date dateOfBirth;
-
-	public int getCustomerId() {
-		return customerId;
-	}
 	
+	@Column(name="POSTCODE")
+	private String postcode;
+
 	//Getters and Setters
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public String getUsername() {
@@ -56,20 +61,36 @@ public class Customer {
 		this.password = password;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getEmail() {
 		return email;
 	}
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getfName() {
+		return fName;
+	}
+
+	public void setfName(String fName) {
+		this.fName = fName;
+	}
+
+	public String getlName() {
+		return lName;
+	}
+
+	public void setlName(String lName) {
+		this.lName = lName;
+	}
+
+	public Date getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(Date dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 
 	public String getPostcode() {
@@ -80,13 +101,7 @@ public class Customer {
 		this.postcode = postcode;
 	}
 
-	public Date getDateOfBirth() {
-		return dateOfBirth;
-	}
-
-	public void setDateOfBirth(Date dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-	}
+	
 	
 	
 }
