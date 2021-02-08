@@ -122,10 +122,4 @@ public class UserEntity {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	
-
-	
-	
-	
 }
