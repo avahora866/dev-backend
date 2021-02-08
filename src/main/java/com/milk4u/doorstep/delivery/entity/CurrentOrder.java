@@ -8,16 +8,16 @@ import javax.persistence.Id;
 public class CurrentOrder {
 	//Fields
 	@Id
-	@Column(name="OrderID")
+	@Column(name="ORDER_ID")
 	private int orderId;
 	
-	@Column(name="CustomerID")
+	@Column(name="CUSTOMER_ID")
 	private int customerId;
 	
-	@Column(name="ProductID")
+	@Column(name="PRODUCT_ID")
 	private int productId;
 	
-	@Column(name="Quantity")
+	@Column(name="QUANTITY")
 	private int quantity;
 	//Getters and Setters
 

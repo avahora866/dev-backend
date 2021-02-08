@@ -10,19 +10,19 @@ import javax.persistence.Id;
 public class Invoice {
 	//Fields
 	@Id
-	@Column(name="InvoiceID")
+	@Column(name="INVOICE_ID")
 	private int invoiceId;
 	
-	@Column(name="CustomerID")
+	@Column(name="CUSTOMER_ID")
 	private int customerId;
 	
-	@Column(name="TotalPrice")
+	@Column(name="TOTAL_PRICE")
 	private double totalPrice;
 	
-	@Column(name="DriverID")
+	@Column(name="DRIVER_ID")
 	private int driverId;
 	
-	@Column(name="DeliveryDate")
+	@Column(name="DELIVERY_DATE")
 	private Date deliveryDate;
 	
 	//Getters and Setters

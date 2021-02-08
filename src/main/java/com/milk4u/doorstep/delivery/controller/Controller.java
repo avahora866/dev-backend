@@ -18,8 +18,8 @@ public class Controller {
 	@Autowired
 	private UserRepository userRepo;
 		
-	@GetMapping(path="/getCustomer")
-	public UserEntity getCustomer() {
+	@GetMapping(path="/getUser")
+	public UserEntity getUser() {
 		 return userRepo.findById(1).get();
 	}
 	

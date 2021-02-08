@@ -8,16 +8,16 @@ import javax.persistence.Id;
 public class Product {
 	//Fields
 	@Id
-	@Column(name="ProductID")
+	@Column(name="PRODUCT_ID")
 	private int productId;
 	
-	@Column(name="Name")
+	@Column(name="NAME")
 	private String name;
 	
-	@Column(name="Description")
+	@Column(name="DESCRIPTION")
 	private String description;
 	
-	@Column(name="Price")
+	@Column(name="PRICE")
 	private double price;
 	
 	//Getters and Setters

@@ -8,16 +8,16 @@ import javax.persistence.Id;
 public class Trolly {
 	//Fields
 	@Id
-	@Column(name="TrollyID")
+	@Column(name="TROLLY_ID")
 	private int trollyId;
 	
-	@Column(name="CustomerID")
+	@Column(name="CUSTOMER_ID")
 	private int customerId;
 	
-	@Column(name="ProductID")
+	@Column(name="PRODUCT_ID")
 	private int productId;
 	
-	@Column(name="Quantity")
+	@Column(name="QUANTITY")
 	private int quantity;
 	
 	//Getters and Setters

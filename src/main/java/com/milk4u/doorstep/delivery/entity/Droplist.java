@@ -8,13 +8,13 @@ import javax.persistence.Id;
 public class Droplist {
 	//Fields
 	@Id
-	@Column(name="DroplistID")
+	@Column(name="DROPLIST_ID")
 	private int droplistId;
 	
-	@Column(name="DriverID")
+	@Column(name="DRIVER_ID")
 	private int driverId;
 	
-	@Column(name="CustomerID")
+	@Column(name="CUSTOMER_ID")
 	private int customerId;
 	
 	//Getters and Setters

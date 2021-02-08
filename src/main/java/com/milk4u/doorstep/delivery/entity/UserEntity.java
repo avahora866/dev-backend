@@ -36,6 +36,12 @@ public class UserEntity {
 	@Column(name="POSTCODE")
 	private String postcode;
 
+	@Column(name="AREA")
+	private String area;
+	
+	@Column(name="TYPE")
+	private String type;
+
 	//Getters and Setters
 	public int getUserId() {
 		return userId;
@@ -100,6 +106,24 @@ public class UserEntity {
 	public void setPostcode(String postcode) {
 		this.postcode = postcode;
 	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	
 
 	
 	
