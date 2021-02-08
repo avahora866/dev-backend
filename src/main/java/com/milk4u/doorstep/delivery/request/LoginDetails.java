@@ -3,6 +3,7 @@ package com.milk4u.doorstep.delivery.request;
 public class LoginDetails {
 	private String userName;
 	private String password;
+//	private String type;
 
 	public String getUserName() {
 		return userName;
@@ -16,4 +17,10 @@ public class LoginDetails {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+//	public String getType() {
+//		return type;
+//	}
+//	public void setType(String type) {
+//		this.type = type;
+//	}
 }

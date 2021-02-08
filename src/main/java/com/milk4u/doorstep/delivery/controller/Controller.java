@@ -26,7 +26,8 @@ public class Controller {
 	@PostMapping(path="/verifyLogin")
 	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
 		if(userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).isPresent()) {
-			return new ResponseEntity<>(HttpStatus.OK);
+			String type = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getType();
+			return new ResponseEntity<>(type, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>("Login failed", HttpStatus.UNAUTHORIZED);
 		}
