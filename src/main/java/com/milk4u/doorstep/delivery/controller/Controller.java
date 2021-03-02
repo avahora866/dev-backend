@@ -23,25 +23,6 @@ public class Controller {
 	private ProductRepository prodRepo;
 
 	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/getUsers")
-	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
-		List<UserEntity> rows = userRepo.findByType(typeDetails.getType());
-		return new ResponseEntity<>(rows, HttpStatus.OK);
-	}
-
-	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/getProducts")
-	public ResponseEntity<List<ProductEntity>> getProducts() {
-		List<ProductEntity> products = new ArrayList<>();
-		Iterator<ProductEntity> iterator = prodRepo.findAll().iterator();
-		while (iterator.hasNext()) {
-			products.add(iterator.next());
-		}
-
-		return new ResponseEntity<>(products, HttpStatus.OK);
-	}
-
-	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
 	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
 		if(userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).isPresent()) {
@@ -54,4 +35,33 @@ public class Controller {
 			return new ResponseEntity<>("Login Failed", HttpStatus.UNAUTHORIZED);
 		}
 	}
+
+
+	//ADMIN----------------------------------------------------------------------------------------------
+	//GetUsers: has a requestBody requireing a string which will require the front-end to specify wheather they are requesting customers, drivers or admins
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getUsers")
+	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
+		List<UserEntity> rows = userRepo.findByType(typeDetails.getType());
+		return new ResponseEntity<>(rows, HttpStatus.OK);
+	}
+
+	//Returns a response entity of all the products
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getProducts")
+	public ResponseEntity<List<ProductEntity>> getProducts() {
+		List<ProductEntity> products = new ArrayList<>();
+		Iterator<ProductEntity> iterator = prodRepo.findAll().iterator();
+		while (iterator.hasNext()) {
+			products.add(iterator.next());
+		}
+
+		return new ResponseEntity<>(products, HttpStatus.OK);
+	}
+
+	//DRIVER---------------------------------------------------------------------------------------------
+
+	//CUSTOMER-------------------------------------------------------------------------------------------
+
+
 }
