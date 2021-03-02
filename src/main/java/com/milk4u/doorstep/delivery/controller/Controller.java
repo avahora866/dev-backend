@@ -1,5 +1,7 @@
 package com.milk4u.doorstep.delivery.controller;
 
+import com.milk4u.doorstep.delivery.entity.ProductEntity;
+import com.milk4u.doorstep.delivery.repository.ProductRepository;
 import com.milk4u.doorstep.delivery.request.TypeDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,21 +12,37 @@ import com.milk4u.doorstep.delivery.entity.UserEntity;
 import com.milk4u.doorstep.delivery.repository.UserRepository;
 import com.milk4u.doorstep.delivery.request.LoginDetails;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
 @RestController // This means that this class is a Controller
 public class Controller {
 	
 	@Autowired
 	private UserRepository userRepo;
+	@Autowired
+	private ProductRepository prodRepo;
 
 	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/getUser")
-	public UserEntity getUser() {
-		 return userRepo.findById(1).get();
+	@GetMapping(path="/getUsers")
+	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
+		List<UserEntity> rows = userRepo.findByType(typeDetails.getType());
+		return new ResponseEntity<>(rows, HttpStatus.OK);
 	}
 
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getProducts")
+	public ResponseEntity<List<ProductEntity>> getProducts() {
+		List<ProductEntity> products = new ArrayList<>();
+
+		Iterator<ProductEntity> iterator = prodRepo.findAll().iterator();
+		while (iterator.hasNext()) {
+			products.add(iterator.next());
+		}
+
+
+
+		return new ResponseEntity<>(products, HttpStatus.OK);
+	}
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")

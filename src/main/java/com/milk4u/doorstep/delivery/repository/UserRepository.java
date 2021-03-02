@@ -9,6 +9,6 @@ import com.milk4u.doorstep.delivery.entity.UserEntity;
 
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
 	Optional<UserEntity> findByUsernameAndPassword(String username, String password);
-
+	List<UserEntity> findByType(String type);
 
 }
