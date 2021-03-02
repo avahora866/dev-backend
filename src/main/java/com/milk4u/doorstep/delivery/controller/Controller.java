@@ -25,12 +25,6 @@ public class Controller {
 		 return userRepo.findById(1).get();
 	}
 
-//	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/getAdmins")
-	public ResponseEntity<List<UserEntity>> getAdmins(@RequestBody TypeDetails typeDetails ) {
-		List<UserEntity> admins = userRepo.findByType(typeDetails.getType());
-		return new ResponseEntity<>(admins, HttpStatus.OK);
-	}
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
