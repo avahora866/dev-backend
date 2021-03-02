@@ -33,13 +33,10 @@ public class Controller {
 	@GetMapping(path="/getProducts")
 	public ResponseEntity<List<ProductEntity>> getProducts() {
 		List<ProductEntity> products = new ArrayList<>();
-
 		Iterator<ProductEntity> iterator = prodRepo.findAll().iterator();
 		while (iterator.hasNext()) {
 			products.add(iterator.next());
 		}
-
-
 
 		return new ResponseEntity<>(products, HttpStatus.OK);
 	}
@@ -49,7 +46,9 @@ public class Controller {
 	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
 		if(userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).isPresent()) {
 			String type = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getType();
-			return new ResponseEntity<>(type, HttpStatus.OK);
+			int id = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getUserId();
+			String data = type +"-"+ String.valueOf(id);
+			return new ResponseEntity<>(data, HttpStatus.OK);
 		}else{
 			String userAndPass = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).toString();
 			return new ResponseEntity<>("Login Failed", HttpStatus.UNAUTHORIZED);
