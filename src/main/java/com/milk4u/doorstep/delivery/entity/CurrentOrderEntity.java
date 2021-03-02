@@ -3,13 +3,15 @@ package com.milk4u.doorstep.delivery.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class Trolly {
+@Table(name = "current_order")
+public class CurrentOrderEntity {
 	//Fields
 	@Id
-	@Column(name="TROLLY_ID")
-	private int trollyId;
+	@Column(name="ORDER_ID")
+	private int orderId;
 	
 	@Column(name="CUSTOMER_ID")
 	private int customerId;
@@ -19,14 +21,14 @@ public class Trolly {
 	
 	@Column(name="QUANTITY")
 	private int quantity;
-	
 	//Getters and Setters
-	public int getTrollyId() {
-		return trollyId;
+
+	public int getOrderId() {
+		return orderId;
 	}
 
-	public void setTrollyId(int trollyId) {
-		this.trollyId = trollyId;
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
 	}
 
 	public int getCustomerId() {

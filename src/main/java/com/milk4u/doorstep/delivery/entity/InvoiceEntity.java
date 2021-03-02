@@ -5,9 +5,11 @@ import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class Invoice {
+@Table(name = "invoice")
+public class InvoiceEntity {
 	//Fields
 	@Id
 	@Column(name="INVOICE_ID")

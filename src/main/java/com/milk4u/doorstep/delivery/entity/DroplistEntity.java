@@ -3,9 +3,11 @@ package com.milk4u.doorstep.delivery.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class Droplist {
+@Table(name = "droplist")
+public class DroplistEntity {
 	//Fields
 	@Id
 	@Column(name="DROPLIST_ID")
