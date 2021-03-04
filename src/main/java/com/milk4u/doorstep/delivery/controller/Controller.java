@@ -6,6 +6,7 @@ import com.milk4u.doorstep.delivery.entity.ProductEntity;
 import com.milk4u.doorstep.delivery.repository.CurrentOrderRepository;
 import com.milk4u.doorstep.delivery.repository.DroplistRepository;
 import com.milk4u.doorstep.delivery.repository.ProductRepository;
+import com.milk4u.doorstep.delivery.request.EditUser;
 import com.milk4u.doorstep.delivery.request.Identification;
 import com.milk4u.doorstep.delivery.request.TypeDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,6 @@ public class Controller {
 		}else{
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-
 	}
 
 	//Returns a response entity of all the products
@@ -72,6 +72,20 @@ public class Controller {
 		}
 
 		return new ResponseEntity<>(products, HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/editUsers")
+	public void editUsers(@RequestBody EditUser eu ) {
+		UserEntity temp = userRepo.findById(eu.getId()).get();
+		temp.setUsername(eu.getUserName());
+		temp.setPassword(eu.getPassword());
+		temp.setEmail(eu.getEmail());
+		temp.setfName(eu.getfName());
+		temp.setlName(eu.getlName());
+		temp.setPostcode(eu.getPostCode());
+		temp.setArea(eu.getArea());
+		userRepo.save(temp);
 	}
 
 	//DRIVER---------------------------------------------------------------------------------------------
