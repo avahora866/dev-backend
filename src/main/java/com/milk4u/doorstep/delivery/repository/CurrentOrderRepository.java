@@ -10,5 +10,6 @@ import java.util.Optional;
 
 public interface CurrentOrderRepository extends CrudRepository<CurrentOrderEntity, Integer>{
     List<Optional<CurrentOrderEntity>> findByCustomerId(int id);
+    void deleteByCustomerId(int id);
 
 }

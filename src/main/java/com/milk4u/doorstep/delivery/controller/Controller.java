@@ -1,23 +1,15 @@
 package com.milk4u.doorstep.delivery.controller;
 
-import com.milk4u.doorstep.delivery.entity.CurrentOrderEntity;
-import com.milk4u.doorstep.delivery.entity.DroplistEntity;
-import com.milk4u.doorstep.delivery.entity.ProductEntity;
-import com.milk4u.doorstep.delivery.repository.CurrentOrderRepository;
-import com.milk4u.doorstep.delivery.repository.DroplistRepository;
-import com.milk4u.doorstep.delivery.repository.ProductRepository;
-import com.milk4u.doorstep.delivery.request.EditUser;
-import com.milk4u.doorstep.delivery.request.Identification;
-import com.milk4u.doorstep.delivery.request.TypeDetails;
+import com.milk4u.doorstep.delivery.entity.*;
+import com.milk4u.doorstep.delivery.repository.*;
+import com.milk4u.doorstep.delivery.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.milk4u.doorstep.delivery.entity.UserEntity;
-import com.milk4u.doorstep.delivery.repository.UserRepository;
-import com.milk4u.doorstep.delivery.request.LoginDetails;
-
+import javax.jws.soap.SOAPBinding;
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -31,6 +23,8 @@ public class Controller {
 	private DroplistRepository dropListRepo;
 	@Autowired
 	private CurrentOrderRepository currentOrderRepo;
+	@Autowired
+	private TrollyRepository trollyRepo;
 
 
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -76,16 +70,131 @@ public class Controller {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/editUsers")
-	public void editUsers(@RequestBody EditUser eu ) {
-		UserEntity temp = userRepo.findById(eu.getId()).get();
-		temp.setUsername(eu.getUserName());
-		temp.setPassword(eu.getPassword());
-		temp.setEmail(eu.getEmail());
-		temp.setfName(eu.getfName());
-		temp.setlName(eu.getlName());
-		temp.setPostcode(eu.getPostCode());
-		temp.setArea(eu.getArea());
+	public ResponseEntity<String> editUsers(@RequestBody EditUser eu ) {
+		if(userRepo.findById(eu.getId()).isPresent()){
+			UserEntity temp = userRepo.findById(eu.getId()).get();
+			temp.setUsername(eu.getUserName());
+			temp.setPassword(eu.getPassword());
+			temp.setEmail(eu.getEmail());
+			temp.setfName(eu.getfName());
+			temp.setlName(eu.getlName());
+			temp.setPostcode(eu.getPostCode());
+			temp.setArea(eu.getArea());
+			userRepo.save(temp);
+			return new ResponseEntity<>("Edited user", HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>("UserID not found", HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PostMapping(path="/addUser")
+	public ResponseEntity<String> addUser(@RequestBody AddUser au ) {
+		UserEntity temp = new UserEntity();
+		temp.setUsername(au.getUserName());
+		temp.setPassword(au.getPassword());
+		temp.setEmail(au.getEmail());
+		temp.setfName(au.getfName());
+		temp.setlName(au.getlName());
+		temp.setDateOfBirth(au.getDateOfBirth());
+		temp.setPostcode(au.getPostCode());
+		temp.setArea(au.getArea());
+		temp.setType(au.getType());
 		userRepo.save(temp);
+		return new ResponseEntity<>("User added", HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delUser")
+	public ResponseEntity<String> delUser(@RequestBody Identification id) {
+		if(userRepo.findById(id.getUserIdentification()).isPresent()){
+			String type = userRepo.findById(id.getUserIdentification()).get().getType();
+			if(type.equals("Customer")){
+				if(!(trollyRepo.findByCustomerId(id.getUserIdentification()).isEmpty())){
+					List<TrollyEntity> rows = new ArrayList<>();
+					Iterator<TrollyEntity> iterator = trollyRepo.findAll().iterator();
+					while (iterator.hasNext()) {
+						rows.add(iterator.next());
+					}
+					for(int i = 0; i < rows.size(); i++){
+						if(rows.get(i).getCustomerId() == id.getUserIdentification()){
+							trollyRepo.deleteById(rows.get(i).getTrollyId());
+						}
+					}
+				}
+
+				if(!(currentOrderRepo.findByCustomerId(id.getUserIdentification()).isEmpty())){
+					List<CurrentOrderEntity> rows2 = new ArrayList<>();
+					Iterator<CurrentOrderEntity> iterator = currentOrderRepo.findAll().iterator();
+					while (iterator.hasNext()) {
+						rows2.add(iterator.next());
+					}
+					for(int i = 0; i < rows2.size(); i++){
+						if(rows2.get(i).getCustomerId() == id.getUserIdentification()){
+							currentOrderRepo.deleteById(rows2.get(i).getOrderId());
+						}
+					}
+				}
+			}else if (type.equals("Driver")){
+				if(!(dropListRepo.findByDriverId(id.getUserIdentification()).isEmpty())){
+					List<DroplistEntity> rows3 = new ArrayList<>();
+					Iterator<DroplistEntity> iterator = dropListRepo.findAll().iterator();
+					while (iterator.hasNext()) {
+						rows3.add(iterator.next());
+					}
+					for(int i = 0; i < rows3.size(); i++){
+						if(rows3.get(i).getDriverId() == id.getUserIdentification()){
+							dropListRepo.deleteById(rows3.get(i).getDroplistId());
+						}
+					}
+				}
+			}
+
+			userRepo.deleteById(id.getUserIdentification());
+			return new ResponseEntity("Deletion succsefull", HttpStatus.OK);
+		}else{
+			return new ResponseEntity("UserID not found", HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/editProducts")
+	public ResponseEntity<String> editProducts(@RequestBody EditProd ep ) {
+		if(prodRepo.findById(ep.getId()).isPresent()){
+			ProductEntity temp = prodRepo.findById(ep.getId()).get();
+			temp.setName(ep.getName());
+			temp.setDescription(ep.getDescription());
+			temp.setPrice(ep.getPrice());
+			prodRepo.save(temp);
+			return new ResponseEntity<>("Product edited", HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND)
+		}
+
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PostMapping(path="/addProduct")
+	public ResponseEntity<String> addProduct(@RequestBody AddProduct ap ) {
+		ProductEntity temp = new ProductEntity();
+		temp.setName(ap.getName());
+		temp.setDescription(ap.getDescription());
+		temp.setPrice(ap.getPrice());
+		prodRepo.save(temp);
+		return new ResponseEntity<>("Product added", HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delProduct")
+	public ResponseEntity<String> delProduct(@RequestBody ProductId pId ) {
+		if(prodRepo.findById(pId.getProductId()).isPresent()){
+			prodRepo.deleteById(pId.getProductId());
+			return new ResponseEntity<>("Deletion succesfull", HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>("No product Id found", HttpStatus.NOT_FOUND);
+		}
 	}
 
 	//DRIVER---------------------------------------------------------------------------------------------

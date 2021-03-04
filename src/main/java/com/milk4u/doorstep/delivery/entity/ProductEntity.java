@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -21,7 +22,7 @@ public class ProductEntity {
 	
 	@Column(name="PRICE")
 	private double price;
-	
+
 	//Getters and Setters
 	public int getProductId() {
 		return productId;

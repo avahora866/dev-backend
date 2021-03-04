@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface DroplistRepository extends CrudRepository<DroplistEntity, Integer>{
     List<Optional<DroplistEntity>> findByDriverId(int id);
+    void deleteByDriverId(int id);
 }
