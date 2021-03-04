@@ -170,7 +170,7 @@ public class Controller {
 			prodRepo.save(temp);
 			return new ResponseEntity<>("Product edited", HttpStatus.OK);
 		}else{
-			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND)
+			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND);
 		}
 
 	}
@@ -215,6 +215,7 @@ public class Controller {
 		}
 
 	}
+
 	//CUSTOMER-------------------------------------------------------------------------------------------
 	//Can get all the products to appear but not the quantity of each product
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -230,4 +231,39 @@ public class Controller {
 		return new ResponseEntity<>(products, HttpStatus.ACCEPTED);
 	}
 
+	//NEED HELP HERE BECAUSE I CAN ADD A ROW TO A TROLLY BUT CANNOT UPDATE AN ALREAY EXSISTING ROW
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/addToTrolly")
+	public void addToTrolly(@RequestBody AddToTrollyDetails td ) {
+		TrollyEntity resp = new TrollyEntity();
+		resp.setCustomerId(td.getCstId());
+		resp.setProductId(td.getProdId());
+
+		List<Optional<TrollyEntity>> temp2List = trollyRepo.findByCustomerId(td.getCstId());
+
+		int target = 0;
+		if(!temp2List.isEmpty()) {
+			for(int i = 0; i < temp2List.size(); i++){
+				if(temp2List.get(i).get().getProductId() == td.getProdId()){
+					target = temp2List.get(i).get().getTrollyId();
+				}
+			}
+			if(target != 0) {
+				resp.setQuantity(trollyRepo.findById(target).get().getQuantity() + td.getQty());
+			}
+		}else{
+			resp.setQuantity(td.getQty());
+		}
+
+		trollyRepo.save(resp);
+	}
+
+	//May need to modify tables os that the customer in the trolly tables is a primary key and a foreign key
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateTrolly")
+	public void updateTrolly(@RequestBody UpdateTrollyDetails utd) {
+		TrollyEntity temp = trollyRepo.findByProductId(utd.getProdId());
+		temp.setQuantity(utd.getQty());
+		trollyRepo.save(temp);
+	}
 }
