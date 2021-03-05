@@ -170,7 +170,7 @@ public class Controller {
 			prodRepo.save(temp);
 			return new ResponseEntity<>("Product edited", HttpStatus.OK);
 		}else{
-			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND)
+			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND);
 		}
 
 	}
