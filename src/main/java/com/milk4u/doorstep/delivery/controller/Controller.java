@@ -267,7 +267,6 @@ public class Controller {
 		return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
 	}
 
-	//NEED HELP HERE BECAUSE I CAN ADD A ROW TO A TROLLY BUT CANNOT UPDATE AN ALREAY EXSISTING ROW
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/addToTrolly")
 	public void addToTrolly(@RequestBody AddToTrollyDetails td ) {
@@ -281,6 +280,7 @@ public class Controller {
 
 		if(temp2List.isEmpty()) {
 			resp.setQuantity(td.getQty());
+			trollyRepo.save(resp);
 		}else{
 			for(int i = 0; i < temp2List.size(); i++){
 				if(temp2List.get(i).get().getProductId() == td.getProdId()){
@@ -288,22 +288,35 @@ public class Controller {
 				}
 			}
 			if(target != 0) {
-				resp.setQuantity(trollyRepo.findById(target).get().getQuantity() + td.getQty());
+				TrollyEntity rowInDb = trollyRepo.findById(target).get();
+				rowInDb.setQuantity(trollyRepo.findById(target).get().getQuantity() + td.getQty());
+				trollyRepo.save(rowInDb);
 			}else{
 				resp.setQuantity(td.getQty());
+				trollyRepo.save(resp);
 			}
 		}
 
-		trollyRepo.save(resp);
 	}
 
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateTrolly")
+	public ResponseEntity<String> updateTrolly(@RequestBody UpdateTrollyDetails utd) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(utd.getCstId());
+		int target = 0;
+
+		for (int i = 0; i < temp.size(); i++){
+			if(temp.get(i).get().getProductId() == utd.getProdId()){
+				target = i;
+			}
+		}
+
+		Optional<TrollyEntity> result = trollyRepo.findById(target);
+
+		result.get().setQuantity(utd.getQty());
+		trollyRepo.save(result.get());
 
 
-//	@CrossOrigin(origins = "http://localhost:3000")
-//	@PutMapping(path="/updateTrolly")
-//	public void updateTrolly(@RequestBody UpdateTrollyDetails utd) {
-//		TrollyEntity temp = trollyRepo.findByProductId(utd.getProdId());
-//		temp.setQuantity(utd.getQty());
-//		trollyRepo.save(temp);
-//	}
+		return new ResponseEntity<>("good", HttpStatus.OK);
+	}
 }
