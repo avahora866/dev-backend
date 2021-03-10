@@ -3,13 +3,19 @@ package com.milk4u.doorstep.delivery.controller;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
+import jdk.nashorn.internal.ir.ObjectNode;
+import netscape.javascript.JSObject;
+import org.omg.CORBA.Current;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import javax.jws.soap.SOAPBinding;
 import javax.swing.text.html.Option;
+import javax.swing.text.html.parser.Entity;
+import java.lang.reflect.Array;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -217,18 +223,48 @@ public class Controller {
 	}
 
 	//CUSTOMER-------------------------------------------------------------------------------------------
-	//Can get all the products to appear but not the quantity of each product
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getCurrentOrder")
-	public ResponseEntity<List<Optional<ProductEntity>>> getCurrentOrder(@RequestBody Identification id ) {
+	public ResponseEntity<List<Object>> getCurrentOrder(@RequestBody Identification id ) {
 		List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(id.getUserIdentification());
 		List<Optional<ProductEntity>> products = new ArrayList<>();
+		List<Object> result = new ArrayList<>();
 
 		for(int i =0; i < currentOrderRow.size(); i++){
 			products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
-			int quantity = currentOrderRow.get(i).get().getQuantity();
 		}
-		return new ResponseEntity<>(products, HttpStatus.ACCEPTED);
+
+		Object[] temp = currentOrderRow.toArray();
+		Object[] temp2 = products.toArray();
+
+		for(int i =0 ; i<currentOrderRow.size(); i++){
+			result.add(temp[i]);
+			result.add(temp2[i]);
+		}
+
+		return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getTrolly")
+	public ResponseEntity<List<Object>> getTrolly(@RequestBody Identification id ) {
+		List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id.getUserIdentification());
+		List<Optional<ProductEntity>> products = new ArrayList<>();
+		List<Object> result = new ArrayList<>();
+
+		for(int i =0; i < trollyRow.size(); i++){
+			products.add(prodRepo.findById(trollyRow.get(i).get().getProductId()));
+		}
+
+		Object[] temp = trollyRow.toArray();
+		Object[] temp2 = products.toArray();
+
+		for(int i =0 ; i<trollyRow.size(); i++){
+			result.add(temp[i]);
+			result.add(temp2[i]);
+		}
+
+		return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
 	}
 
 	//NEED HELP HERE BECAUSE I CAN ADD A ROW TO A TROLLY BUT CANNOT UPDATE AN ALREAY EXSISTING ROW
@@ -242,7 +278,10 @@ public class Controller {
 		List<Optional<TrollyEntity>> temp2List = trollyRepo.findByCustomerId(td.getCstId());
 
 		int target = 0;
-		if(!temp2List.isEmpty()) {
+
+		if(temp2List.isEmpty()) {
+			resp.setQuantity(td.getQty());
+		}else{
 			for(int i = 0; i < temp2List.size(); i++){
 				if(temp2List.get(i).get().getProductId() == td.getProdId()){
 					target = temp2List.get(i).get().getTrollyId();
@@ -250,20 +289,21 @@ public class Controller {
 			}
 			if(target != 0) {
 				resp.setQuantity(trollyRepo.findById(target).get().getQuantity() + td.getQty());
+			}else{
+				resp.setQuantity(td.getQty());
 			}
-		}else{
-			resp.setQuantity(td.getQty());
 		}
 
 		trollyRepo.save(resp);
 	}
 
-	//May need to modify tables os that the customer in the trolly tables is a primary key and a foreign key
-	@CrossOrigin(origins = "http://localhost:3000")
-	@PutMapping(path="/updateTrolly")
-	public void updateTrolly(@RequestBody UpdateTrollyDetails utd) {
-		TrollyEntity temp = trollyRepo.findByProductId(utd.getProdId());
-		temp.setQuantity(utd.getQty());
-		trollyRepo.save(temp);
-	}
+
+
+//	@CrossOrigin(origins = "http://localhost:3000")
+//	@PutMapping(path="/updateTrolly")
+//	public void updateTrolly(@RequestBody UpdateTrollyDetails utd) {
+//		TrollyEntity temp = trollyRepo.findByProductId(utd.getProdId());
+//		temp.setQuantity(utd.getQty());
+//		trollyRepo.save(temp);
+//	}
 }
