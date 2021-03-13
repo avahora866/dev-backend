@@ -1,6 +1,6 @@
 package com.milk4u.doorstep.delivery.request;
 
-public class UpdateTrollyDetails {
+public class TrollyDetails {
     private int cstId;
     private int prodId;
     private int qty;

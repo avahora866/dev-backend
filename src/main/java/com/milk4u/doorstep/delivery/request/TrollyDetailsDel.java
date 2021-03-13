@@ -1,9 +1,8 @@
 package com.milk4u.doorstep.delivery.request;
 
-public class AddToTrollyDetails {
+public class TrollyDetailsDel {
     private int cstId;
     private int prodId;
-    private int qty;
 
     public int getCstId() {
         return cstId;
@@ -19,13 +18,5 @@ public class AddToTrollyDetails {
 
     public void setProdId(int prodId) {
         this.prodId = prodId;
-    }
-
-    public int getQty() {
-        return qty;
-    }
-
-    public void setQty(int qty) {
-        this.qty = qty;
     }
 }

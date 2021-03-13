@@ -3,19 +3,14 @@ package com.milk4u.doorstep.delivery.controller;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
-import jdk.nashorn.internal.ir.ObjectNode;
-import netscape.javascript.JSObject;
-import org.omg.CORBA.Current;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
-import javax.jws.soap.SOAPBinding;
-import javax.swing.text.html.Option;
-import javax.swing.text.html.parser.Entity;
-import java.lang.reflect.Array;
+import java.sql.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -269,7 +264,7 @@ public class Controller {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/addToTrolly")
-	public void addToTrolly(@RequestBody AddToTrollyDetails td ) {
+	public void addToTrolly(@RequestBody TrollyDetails td ) {
 		TrollyEntity resp = new TrollyEntity();
 		resp.setCustomerId(td.getCstId());
 		resp.setProductId(td.getProdId());
@@ -301,22 +296,80 @@ public class Controller {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/updateTrolly")
-	public ResponseEntity<String> updateTrolly(@RequestBody UpdateTrollyDetails utd) {
-		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(utd.getCstId());
-		int target = 0;
+	public ResponseEntity<String> updateTrolly(@RequestBody TrollyDetails td) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(td.getCstId());
+		Optional<TrollyEntity> result = null;
 
 		for (int i = 0; i < temp.size(); i++){
-			if(temp.get(i).get().getProductId() == utd.getProdId()){
-				target = i;
+			if(temp.get(i).get().getProductId() == td.getProdId()){
+				result = trollyRepo.findById(temp.get(i).get().getTrollyId());
 			}
 		}
 
-		Optional<TrollyEntity> result = trollyRepo.findById(target);
 
-		result.get().setQuantity(utd.getQty());
+
+		result.get().setQuantity(td.getQty());
 		trollyRepo.save(result.get());
 
 
-		return new ResponseEntity<>("good", HttpStatus.OK);
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delProductFromTrolly")
+	public  ResponseEntity<String> delProductFromTrolly(@RequestBody TrollyDetailsDel tdd ) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(tdd.getCstId());
+		for(int i =0; i<temp.size();i++){
+			if(temp.get(i).get().getProductId() == tdd.getProdId()){
+				trollyRepo.deleteById(temp.get(i).get().getTrollyId());
+			}
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delTrolly")
+	public  ResponseEntity<String> delProductFromTrolly(@RequestBody TrollyDetailsCancel tdc ) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(tdc.getCstId());
+		for(int i = 0; i <temp.size(); i++ ){
+			trollyRepo.deleteById(temp.get(i).get().getTrollyId());
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/createOrder")
+	public ResponseEntity<String> createOrder (@RequestBody Identification id){
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
+		List<CurrentOrderEntity> temp2 = new ArrayList<>();
+
+		for(int i = 0; i < temp.size(); i++ ){
+			CurrentOrderEntity t1 = new CurrentOrderEntity();
+			t1.setCustomerId(temp.get(i).get().getCustomerId());
+			t1.setProductId(temp.get(i).get().getProductId());
+			t1.setQuantity(temp.get(i).get().getQuantity());
+			temp2.add(t1);
+		}
+
+		currentOrderRepo.saveAll(temp2);
+
+
+
+//		CurrentOrderEntity t1 = new CurrentOrderEntity();
+//		CurrentOrderEntity t2 = new CurrentOrderEntity();
+
+//		t1.setCustomerId(temp.get(0).get().getCustomerId());
+//		t1.setProductId(temp.get(0).get().getProductId());
+//		t1.setQuantity(temp.get(0).get().getQuantity());
+//		t2.setCustomerId(temp.get(1).get().getCustomerId());
+//		t2.setProductId(temp.get(1).get().getProductId());
+//		t2.setQuantity(temp.get(1).get().getQuantity());
+
+//		t1 = currentOrderRepo.save(t1);
+//		t2 = currentOrderRepo.save(t2);
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
 	}
 }
