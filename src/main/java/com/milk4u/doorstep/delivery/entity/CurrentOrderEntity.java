@@ -1,26 +1,25 @@
 package com.milk4u.doorstep.delivery.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "current_order")
 public class CurrentOrderEntity {
 	//Fields
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="ORDER_ID")
 	private int orderId;
-	
+
 	@Column(name="CUSTOMER_ID")
 	private int customerId;
-	
+
 	@Column(name="PRODUCT_ID")
 	private int productId;
 	
 	@Column(name="QUANTITY")
 	private int quantity;
+
 	//Getters and Setters
 
 	public int getOrderId() {

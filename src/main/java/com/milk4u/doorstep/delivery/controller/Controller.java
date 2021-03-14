@@ -3,13 +3,16 @@ package com.milk4u.doorstep.delivery.controller;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.jws.soap.SOAPBinding;
-import javax.swing.text.html.Option;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -27,6 +30,7 @@ public class Controller {
 	private TrollyRepository trollyRepo;
 
 
+	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
 	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
@@ -41,9 +45,9 @@ public class Controller {
 		}
 	}
 
-
 	//ADMIN----------------------------------------------------------------------------------------------
-	//GetUsers: has a requestBody requireing a string which will require the front-end to specify wheather they are requesting customers, drivers or admins
+
+	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a list of the specified Users
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getUsers")
 	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
@@ -55,7 +59,7 @@ public class Controller {
 		}
 	}
 
-	//Returns a response entity of all the products
+	//Returns a list of all products in database - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getProducts")
 	public ResponseEntity<List<ProductEntity>> getProducts() {
@@ -68,6 +72,7 @@ public class Controller {
 		return new ResponseEntity<>(products, HttpStatus.OK);
 	}
 
+	//Edits users can be used for Drivers, Admins and Customers - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/editUsers")
 	public ResponseEntity<String> editUsers(@RequestBody EditUser eu ) {
@@ -88,6 +93,7 @@ public class Controller {
 
 	}
 
+	//Adds a new User can be used for Drivers, Admins and Customers - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addUser")
 	public ResponseEntity<String> addUser(@RequestBody AddUser au ) {
@@ -105,6 +111,7 @@ public class Controller {
 		return new ResponseEntity<>("User added", HttpStatus.OK);
 	}
 
+	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deltes their droplist
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delUser")
 	public ResponseEntity<String> delUser(@RequestBody Identification id) {
@@ -159,6 +166,7 @@ public class Controller {
 
 	}
 
+	//Edits a Product
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/editProducts")
 	public ResponseEntity<String> editProducts(@RequestBody EditProd ep ) {
@@ -175,6 +183,7 @@ public class Controller {
 
 	}
 
+	//Adds a product - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addProduct")
 	public ResponseEntity<String> addProduct(@RequestBody AddProduct ap ) {
@@ -186,6 +195,7 @@ public class Controller {
 		return new ResponseEntity<>("Product added", HttpStatus.OK);
 	}
 
+	//Deletes a product
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delProduct")
 	public ResponseEntity<String> delProduct(@RequestBody ProductId pId ) {
@@ -198,7 +208,8 @@ public class Controller {
 	}
 
 	//DRIVER---------------------------------------------------------------------------------------------
-	//Returns all the customers that the driver will have to take the order for
+
+	//Returns the drop list for the specified driver
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getDroplist")
 	public ResponseEntity<List<Optional<UserEntity>>> getDroplist(@RequestBody Identification id ) {
@@ -215,19 +226,196 @@ public class Controller {
 		}
 
 	}
+
 	//CUSTOMER-------------------------------------------------------------------------------------------
-	//Can get all the products to appear but not the quantity of each product
+
+	//Returns the customers current order - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getCurrentOrder")
-	public ResponseEntity<List<Optional<ProductEntity>>> getCurrentOrder(@RequestBody Identification id ) {
+	public ResponseEntity<List<Object>> getCurrentOrder(@RequestBody Identification id ) {
 		List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(id.getUserIdentification());
 		List<Optional<ProductEntity>> products = new ArrayList<>();
+		List<Object> result = new ArrayList<>();
 
 		for(int i =0; i < currentOrderRow.size(); i++){
 			products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
-			int quantity = currentOrderRow.get(i).get().getQuantity();
 		}
-		return new ResponseEntity<>(products, HttpStatus.ACCEPTED);
+
+		Object[] temp = currentOrderRow.toArray();
+		Object[] temp2 = products.toArray();
+
+		for(int i =0 ; i<currentOrderRow.size(); i++){
+			result.add(temp[i]);
+			result.add(temp2[i]);
+		}
+
+		return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+	}
+
+	//Returns the customers trolly - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getTrolly")
+	public ResponseEntity<List<Object>> getTrolly(@RequestBody Identification id ) {
+		List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id.getUserIdentification());
+		List<Optional<ProductEntity>> products = new ArrayList<>();
+		List<Object> result = new ArrayList<>();
+
+		for(int i =0; i < trollyRow.size(); i++){
+			products.add(prodRepo.findById(trollyRow.get(i).get().getProductId()));
+		}
+
+		Object[] temp = trollyRow.toArray();
+		Object[] temp2 = products.toArray();
+
+		for(int i =0 ; i<trollyRow.size(); i++){
+			result.add(temp[i]);
+			result.add(temp2[i]);
+		}
+
+		return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+	}
+
+	//Adds a product to the trolly - if product is already in the trolly the product in the trolly increases its quantity - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/addToTrolly")
+	public void addToTrolly(@RequestBody TrollyDetails td ) {
+		TrollyEntity resp = new TrollyEntity();
+		resp.setCustomerId(td.getCstId());
+		resp.setProductId(td.getProdId());
+
+		List<Optional<TrollyEntity>> temp2List = trollyRepo.findByCustomerId(td.getCstId());
+
+		int target = 0;
+
+		if(temp2List.isEmpty()) {
+			resp.setQuantity(td.getQty());
+			trollyRepo.save(resp);
+		}else{
+			for(int i = 0; i < temp2List.size(); i++){
+				if(temp2List.get(i).get().getProductId() == td.getProdId()){
+					target = temp2List.get(i).get().getTrollyId();
+				}
+			}
+			if(target != 0) {
+				TrollyEntity rowInDb = trollyRepo.findById(target).get();
+				rowInDb.setQuantity(trollyRepo.findById(target).get().getQuantity() + td.getQty());
+				trollyRepo.save(rowInDb);
+			}else{
+				resp.setQuantity(td.getQty());
+				trollyRepo.save(resp);
+			}
+		}
+
+	}
+
+	//Updates the quantity of a product in a trolly - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateTrolly")
+	public ResponseEntity<String> updateTrolly(@RequestBody TrollyDetails td) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(td.getCstId());
+		Optional<TrollyEntity> result = null;
+
+		for (int i = 0; i < temp.size(); i++){
+			if(temp.get(i).get().getProductId() == td.getProdId()){
+				result = trollyRepo.findById(temp.get(i).get().getTrollyId());
+			}
+		}
+
+		result.get().setQuantity(td.getQty());
+		trollyRepo.save(result.get());
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//Deletes a product form the trolly - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delProductFromTrolly")
+	public  ResponseEntity<String> delProductFromTrolly(@RequestBody TrollyDetailsDel tdd ) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(tdd.getCstId());
+		for(int i =0; i<temp.size();i++){
+			if(temp.get(i).get().getProductId() == tdd.getProdId()){
+				trollyRepo.deleteById(temp.get(i).get().getTrollyId());
+			}
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//Deletes the trolly of a customer - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delTrolly")
+	public  ResponseEntity<String> delTrolly(@RequestBody Identification id ) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
+		for(int i = 0; i <temp.size(); i++ ){
+			trollyRepo.deleteById(temp.get(i).get().getTrollyId());
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//Maybe try to do a saveAll method
+	//Creates a new Order for the customer - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/createOrder")
+	public ResponseEntity<String> createOrder (@RequestBody Identification id){
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
+
+
+		for(int i = 0; i < temp.size(); i++ ){
+			CurrentOrderEntity t1 = new CurrentOrderEntity();
+			t1.setCustomerId(temp.get(i).get().getCustomerId());
+			t1.setProductId(temp.get(i).get().getProductId());
+			t1.setQuantity(temp.get(i).get().getQuantity());
+			currentOrderRepo.save(t1);
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//TrollyDetails stores the cstID ProdID and Qty so can be used for order as well
+	//Updates a product in the trolly - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateOrder")
+	public ResponseEntity<String> updateOrder(@RequestBody TrollyDetails td) {
+		List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(td.getCstId());
+		Optional<CurrentOrderEntity> result = null;
+
+		for (int i = 0; i < temp.size(); i++){
+			if(temp.get(i).get().getProductId() == td.getProdId()){
+				result = currentOrderRepo.findById(temp.get(i).get().getOrderId());
+			}
+		}
+
+		result.get().setQuantity(td.getQty());
+		currentOrderRepo.save(result.get());
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//Deletes a product in the order - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delProductFromOrder")
+	public  ResponseEntity<String> delProductFromOrder(@RequestBody TrollyDetailsDel tdd ) {
+		List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(tdd.getCstId());
+		for(int i =0; i<temp.size();i++){
+			if(temp.get(i).get().getProductId() == tdd.getProdId()){
+				currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
+			}
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
+	}
+
+	//Deletes the order of a customer - NEED TO ADD SENSITIVITY
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delOrder")
+	public  ResponseEntity<String> delOrder(@RequestBody Identification id ) {
+		List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(id.getUserIdentification());
+		for(int i = 0; i <temp.size(); i++ ){
+			currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
+		}
+
+		return new ResponseEntity<>("Good", HttpStatus.OK);
 	}
 
 }
