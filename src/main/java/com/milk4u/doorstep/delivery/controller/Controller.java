@@ -30,7 +30,7 @@ public class Controller {
 	private TrollyRepository trollyRepo;
 
 
-	//Takes in a username and password - checks if they are present in database - ifPresnet returns the type of the user - ifNotPresent retuns a String
+	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
 	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
@@ -45,10 +45,9 @@ public class Controller {
 		}
 	}
 
-
 	//ADMIN----------------------------------------------------------------------------------------------
 
-	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a lsit of the specified Users
+	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a list of the specified Users
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getUsers")
 	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
@@ -210,7 +209,7 @@ public class Controller {
 
 	//DRIVER---------------------------------------------------------------------------------------------
 
-	//Returns the drop list for the specified deriver
+	//Returns the drop list for the specified driver
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getDroplist")
 	public ResponseEntity<List<Optional<UserEntity>>> getDroplist(@RequestBody Identification id ) {
@@ -230,7 +229,7 @@ public class Controller {
 
 	//CUSTOMER-------------------------------------------------------------------------------------------
 
-	//Returns the customers curent order - NEED TO ADD SENSITIVITY
+	//Returns the customers current order - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getCurrentOrder")
 	public ResponseEntity<List<Object>> getCurrentOrder(@RequestBody Identification id ) {
@@ -345,8 +344,8 @@ public class Controller {
 	//Deletes the trolly of a customer - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delTrolly")
-	public  ResponseEntity<String> delTrolly(@RequestBody TrollyDetailsCancel tdc ) {
-		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(tdc.getCstId());
+	public  ResponseEntity<String> delTrolly(@RequestBody Identification id ) {
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
 		for(int i = 0; i <temp.size(); i++ ){
 			trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 		}
@@ -410,8 +409,8 @@ public class Controller {
 	//Deletes the order of a customer - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delOrder")
-	public  ResponseEntity<String> delOrder(@RequestBody TrollyDetailsCancel tdc ) {
-		List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(tdc.getCstId());
+	public  ResponseEntity<String> delOrder(@RequestBody Identification id ) {
+		List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(id.getUserIdentification());
 		for(int i = 0; i <temp.size(); i++ ){
 			currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
 		}
