@@ -442,6 +442,46 @@ public class Controller {
 		}
 	}
 
+	//This adds all the producst in the trolly ot the order. If there is a duplicates it increases the quantity
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/addToOrder")
+	public ResponseEntity<String> addToOrder(@RequestBody Identification id){
+		if(userRepo.existsById(id.getUserIdentification())){
+			List<Optional<TrollyEntity>> trollyRows = trollyRepo.findByCustomerId(id.getUserIdentification());
+			List<Optional<CurrentOrderEntity>> currOrderRows = currentOrderRepo.findByCustomerId(id.getUserIdentification());
+			List<Integer> currOrderIds = new ArrayList<>();
+			List<Integer> trollyIds = new ArrayList<>();
+
+
+			for(int i = 0; i < currOrderRows.size(); i++){
+				for(int j = 0; j < trollyRows.size(); j++){
+					if(currOrderRows.get(i).get().getProductId() == trollyRows.get(j).get().getProductId()){
+						currOrderIds.add(currOrderRows.get(i).get().getOrderId());
+						trollyIds.add(trollyRows.get(j).get().getTrollyId());
+					}
+				}
+			}
+
+			for(int i = 0; i < trollyRows.size(); i++){
+				CurrentOrderEntity tempEntity = new CurrentOrderEntity();
+				Optional<CurrentOrderEntity> tempEntity2 = null;
+				if(currOrderIds.contains(currOrderRows.get(i).get().getOrderId())){
+					tempEntity2 = currentOrderRepo.findById(currOrderRows.get(i).get().getOrderId());
+					tempEntity2.get().setQuantity(tempEntity2.get().getQuantity() + trollyRows.get(i).get().getQuantity());
+					currentOrderRepo.save(tempEntity2.get());
+				}else{
+					tempEntity.setCustomerId(trollyRows.get(i).get().getCustomerId());
+					tempEntity.setProductId(trollyRows.get(i).get().getProductId());
+					tempEntity.setQuantity(trollyRows.get(i).get().getQuantity());
+					currentOrderRepo.save(tempEntity);
+				}
+			}
+			return new ResponseEntity<>("Order updated", HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 	//Deletes the order of a customer - NEED TO ADD SENSITIVITY
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delOrder")
