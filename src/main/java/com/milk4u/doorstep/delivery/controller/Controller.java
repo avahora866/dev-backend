@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.jws.soap.SOAPBinding;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -105,7 +107,7 @@ public class Controller {
 		return new ResponseEntity<>("User added", HttpStatus.OK);
 	}
 
-	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deltes their droplist
+	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delUser")
 	public ResponseEntity<String> delUser(@RequestBody Identification id) {
@@ -177,7 +179,7 @@ public class Controller {
 
 	}
 
-	//Adds a product - NEED TO ADD SENSITIVITY
+	//Adds a product
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addProduct")
 	public ResponseEntity<String> addProduct(@RequestBody AddProduct ap ) {
@@ -219,6 +221,49 @@ public class Controller {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateDroplist")
+	public void updateDroplist() {
+		Iterator<CurrentOrderEntity> allCurrOrders = currentOrderRepo.findAll().iterator();
+		List<UserEntity> allDriver = userRepo.findByType("Driver");
+		List<Integer> cstIdsDone = new ArrayList<>();
+
+		while (allCurrOrders.hasNext()){
+			CurrentOrderEntity temp1 = allCurrOrders.next();
+			if(!cstIdsDone.contains(temp1.getCustomerId())){
+				String cstArea = userRepo.findById(temp1.getCustomerId()).get().getPostcode();
+				int driver = 0;
+				List<Integer> driverIDs = new ArrayList<>();
+				cstIdsDone.add(temp1.getCustomerId());
+				for(int i =0; i< allDriver.size(); i++){
+					if(allDriver.get(i).getArea().equals(cstArea.substring(0, 2))){
+						driverIDs.add(allDriver.get(i).getUserId());
+					}
+				}
+				if(allDriver.size() != 1){
+					Random rand = new Random();
+					driver = driverIDs.get(rand.nextInt(driverIDs.size()));
+				}else{
+					driver = driverIDs.get(0);
+				}
+
+				driverIDs.clear();
+
+				DroplistEntity endRes = new DroplistEntity();
+				endRes.setDriverId(driver);
+				endRes.setCustomerId(temp1.getCustomerId());
+				dropListRepo.save(endRes);
+			}
+		}
+	}
+
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delDroplist")
+	public void delDroplist() {
+		dropListRepo.deleteAll();
 	}
 
 	//CUSTOMER-------------------------------------------------------------------------------------------
@@ -279,7 +324,7 @@ public class Controller {
 		}
 	}
 
-	//Adds a product to the trolly - if product is already in the trolly the product in the trolly increases its quantity - NEED TO ADD SENSITIVITY
+	//Adds a product to the trolly - if product is already in the trolly the product in the trolly increases its quantity
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/addToTrolly")
 	public ResponseEntity<Optional<ProductEntity>> addToTroly(@RequestBody TrollyDetails td ) {
@@ -319,7 +364,7 @@ public class Controller {
 
 	}
 
-	//Updates the quantity of a product in a trolly - NEED TO ADD SENSITIVITY
+	//Updates the quantity of a product in a trolly
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path = "/updateTrolly")
 	public ResponseEntity<Optional<TrollyEntity>> updateTrolly(@RequestBody TrollyDetails td) {
@@ -354,7 +399,7 @@ public class Controller {
 				}
 			}
 
-			return new ResponseEntity<>("Deleation succesfull", HttpStatus.OK);
+			return new ResponseEntity<>("Deletion succesfull", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -370,7 +415,7 @@ public class Controller {
 				trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 			}
 
-			return new ResponseEntity<>("Trolly delated", HttpStatus.OK);
+			return new ResponseEntity<>("Trolly Deleted", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -453,6 +498,7 @@ public class Controller {
 			List<Integer> trollyIds = new ArrayList<>();
 
 
+
 			for(int i = 0; i < currOrderRows.size(); i++){
 				for(int j = 0; j < trollyRows.size(); j++){
 					if(currOrderRows.get(i).get().getProductId() == trollyRows.get(j).get().getProductId()){
@@ -482,7 +528,7 @@ public class Controller {
 		}
 	}
 
-	//Deletes the order of a customer - NEED TO ADD SENSITIVITY
+	//Deletes the order of a customer
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delOrder")
 	public  ResponseEntity<String> delOrder(@RequestBody Identification id ) {
@@ -492,10 +538,18 @@ public class Controller {
 				currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
 			}
 
-			return new ResponseEntity<>("Order Deleated", HttpStatus.OK);
+			return new ResponseEntity<>("Order Deleted", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/sendInvoice")
+	public void sendInvoice() {
+
+	}
+
+
 
 }
