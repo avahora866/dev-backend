@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.jws.soap.SOAPBinding;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.net.PasswordAuthentication;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -546,10 +548,16 @@ public class Controller {
 
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/sendInvoice")
-	public void sendInvoice() {
+	public void sendInvoice(@RequestBody Identification id) throws MessagingException {
+//		List<Optional<CurrentOrderEntity>> currOrder = currentOrderRepo.findByCustomerId(id.getUserIdentification());
+//		Optional<UserEntity> driver = userRepo.findById(dropListRepo.findByCustomerId(id.getUserIdentification()).get().getDriverId());
+//		List<Optional<ProductEntity>> products = new ArrayList<>();
+//		for(int i =0; i< currOrder.size(); i++){
+//			products.add(prodRepo.findById(currOrder.get(i).get().getProductId()));
+//		}
+		Optional<UserEntity> customer = userRepo.findById(id.getUserIdentification());
+		String cstEmail = customer.get().getEmail();
 
 	}
-
-
 
 }
