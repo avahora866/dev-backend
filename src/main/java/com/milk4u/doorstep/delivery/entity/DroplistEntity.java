@@ -1,15 +1,13 @@
 package com.milk4u.doorstep.delivery.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "droplist")
 public class DroplistEntity {
 	//Fields
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="DROPLIST_ID")
 	private int droplistId;
 	
