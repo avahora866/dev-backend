@@ -3,6 +3,7 @@ package com.milk4u.doorstep.delivery.controller;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,15 +32,14 @@ public class Controller {
 	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
-	public ResponseEntity<String>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
+	public ResponseEntity<Optional<UserEntity>>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
 		if(userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).isPresent()) {
 			String type = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getType();
 			int id = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getUserId();
-			String data = type +"-"+ String.valueOf(id);
-			return new ResponseEntity<>(data, HttpStatus.OK);
+			return new ResponseEntity<>(userRepo.findById(id), HttpStatus.OK);
 		}else{
 			String userAndPass = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).toString();
-			return new ResponseEntity<>("Login Failed", HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 	}
 
@@ -48,12 +48,22 @@ public class Controller {
 	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a list of the specified Users
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getUsers")
-	public ResponseEntity<List<UserEntity>> getUsers(@RequestBody TypeDetails typeDetails ) {
+	public ResponseEntity<List<Optional<UserEntity>>> getUsers(@RequestBody TypeDetails typeDetails ) {
 		if(typeDetails.getType().equals("Admin") || typeDetails.getType().equals("Driver") || typeDetails.getType().equals("Customer")){
-			List<UserEntity> rows = userRepo.findByType(typeDetails.getType());
+			List<Optional<UserEntity>> rows = userRepo.findByType(typeDetails.getType());
 			return new ResponseEntity<>(rows, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/getUserGet")
+	public ResponseEntity<Optional<UserEntity>> getUserGet(@RequestParam int userIdentification) {
+		if(userRepo.existsById(userIdentification)){
+			return new ResponseEntity<>(userRepo.findById(userIdentification), HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 		}
 	}
 
@@ -229,7 +239,7 @@ public class Controller {
 	@PutMapping(path="/updateDroplist")
 	public void updateDroplist() {
 		Iterator<CurrentOrderEntity> allCurrOrders = currentOrderRepo.findAll().iterator();
-		List<UserEntity> allDriver = userRepo.findByType("Driver");
+		List<Optional<UserEntity>> allDriver = userRepo.findByType("Driver");
 		List<Integer> cstIdsDone = new ArrayList<>();
 
 		while (allCurrOrders.hasNext()){
@@ -240,8 +250,8 @@ public class Controller {
 				List<Integer> driverIDs = new ArrayList<>();
 				cstIdsDone.add(temp1.getCustomerId());
 				for(int i =0; i< allDriver.size(); i++){
-					if(allDriver.get(i).getArea().equals(cstArea.substring(0, 2))){
-						driverIDs.add(allDriver.get(i).getUserId());
+					if(allDriver.get(i).get().getArea().equals(cstArea.substring(0, 2))){
+						driverIDs.add(allDriver.get(i).get().getUserId());
 					}
 				}
 				if(allDriver.size() != 1){
