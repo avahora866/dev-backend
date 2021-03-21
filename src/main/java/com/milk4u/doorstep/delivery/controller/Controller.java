@@ -3,15 +3,12 @@ package com.milk4u.doorstep.delivery.controller;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.*;
-import javax.mail.internet.*;
-import java.net.PasswordAuthentication;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -48,22 +45,12 @@ public class Controller {
 	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a list of the specified Users
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getUsers")
-	public ResponseEntity<List<Optional<UserEntity>>> getUsers(@RequestBody TypeDetails typeDetails ) {
-		if(typeDetails.getType().equals("Admin") || typeDetails.getType().equals("Driver") || typeDetails.getType().equals("Customer")){
-			List<Optional<UserEntity>> rows = userRepo.findByType(typeDetails.getType());
+	public ResponseEntity<List<Optional<UserEntity>>> getUsers(@RequestParam String type) {
+		if(type.equals("Admin") || type.equals("Driver") || type.equals("Customer")){
+			List<Optional<UserEntity>> rows = userRepo.findByType(type);
 			return new ResponseEntity<>(rows, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-	}
-
-	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/getUserGet")
-	public ResponseEntity<Optional<UserEntity>> getUserGet(@RequestParam int userIdentification) {
-		if(userRepo.existsById(userIdentification)){
-			return new ResponseEntity<>(userRepo.findById(userIdentification), HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 		}
 	}
 
@@ -206,9 +193,9 @@ public class Controller {
 	//Deletes a product
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delProduct")
-	public ResponseEntity<String> delProduct(@RequestBody ProductId pId ) {
-		if(prodRepo.findById(pId.getProductId()).isPresent()){
-			prodRepo.deleteById(pId.getProductId());
+	public ResponseEntity<String> delProduct(@RequestBody Identification pId ) {
+		if(prodRepo.findById(pId.getUserIdentification()).isPresent()){
+			prodRepo.deleteById(pId.getUserIdentification());
 			return new ResponseEntity<>("Deletion succesfull", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>("No product Id found", HttpStatus.NOT_FOUND);
@@ -220,9 +207,9 @@ public class Controller {
 	//Returns the drop list for the specified driver
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getDroplist")
-	public ResponseEntity<List<Optional<UserEntity>>> getDroplist(@RequestBody Identification id ) {
-		if(userRepo.findById(id.getUserIdentification()).isPresent()){
-			List<Optional<DroplistEntity>> driverRow = dropListRepo.findByDriverId(id.getUserIdentification());
+	public ResponseEntity<List<Optional<UserEntity>>> getDroplist(@RequestParam int id ) {
+		if(userRepo.findById(id).isPresent()){
+			List<Optional<DroplistEntity>> driverRow = dropListRepo.findByDriverId(id);
 			List<Optional<UserEntity>> customers = new ArrayList<>();
 
 			for(int i =0; i < driverRow.size(); i++){
@@ -283,9 +270,9 @@ public class Controller {
 	//Returns the customers current order
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getCurrentOrder")
-	public ResponseEntity<List<Object>> getCurrentOrder(@RequestBody Identification id ) {
-		if(userRepo.existsById(id.getUserIdentification())){
-			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(id.getUserIdentification());
+	public ResponseEntity<List<Object>> getCurrentOrder(@RequestParam int id ) {
+		if(userRepo.existsById(id)){
+			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(id);
 			List<Optional<ProductEntity>> products = new ArrayList<>();
 			List<Object> result = new ArrayList<>();
 
@@ -311,10 +298,10 @@ public class Controller {
 	//Returns the customers trolly
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getTrolly")
-	public ResponseEntity<List<Object>> getTrolly(@RequestBody Identification id ) {
-		if(userRepo.existsById(id.getUserIdentification())){
+	public ResponseEntity<List<Object>> getTrolly(@RequestParam int id ) {
+		if(userRepo.existsById(id)){
 
-			List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id.getUserIdentification());
+			List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id);
 			List<Optional<ProductEntity>> products = new ArrayList<>();
 			List<Object> result = new ArrayList<>();
 
