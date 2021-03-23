@@ -67,10 +67,11 @@ public class Controller {
 		return new ResponseEntity<>(products, HttpStatus.OK);
 	}
 
+
 	//Edits users can be used for Drivers, Admins and Customers
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/editUsers")
-	public ResponseEntity<String> editUsers(@RequestBody EditUser eu ) {
+	public ResponseEntity<String> editUsers(@RequestBody EditUser eu) {
 		if(userRepo.findById(eu.getId()).isPresent()){
 			UserEntity temp = userRepo.findById(eu.getId()).get();
 			temp.setUsername(eu.getUserName());
@@ -280,18 +281,24 @@ public class Controller {
 				products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
 			}
 
-			Object[] temp = currentOrderRow.toArray();
-			Object[] temp2 = products.toArray();
-
-			for(int i =0 ; i<currentOrderRow.size(); i++){
-				result.add(temp[i]);
-				result.add(temp2[i]);
+			List fin = new ArrayList();
+			for (int i = 0; i < currentOrderRow.size(); i++){
+				Optional<CurrentOrderEntity> order = currentOrderRow.get(i);
+				Optional<ProductEntity> product = products.get(i);
+				List temp3 = new ArrayList();
+				temp3.add(order.get().getProductId());
+				temp3.add(product.get().getName());
+				temp3.add(product.get().getDescription());
+				temp3.add(product.get().getPrice());
+				temp3.add(order.get().getQuantity());
+				fin.add(temp3);
 			}
 
-			return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+			return new ResponseEntity<>(fin, HttpStatus.ACCEPTED);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+
 
 	}
 
@@ -300,24 +307,27 @@ public class Controller {
 	@GetMapping(path="/getTrolly")
 	public ResponseEntity<List<Object>> getTrolly(@RequestParam int id ) {
 		if(userRepo.existsById(id)){
-
 			List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id);
 			List<Optional<ProductEntity>> products = new ArrayList<>();
-			List<Object> result = new ArrayList<>();
 
 			for(int i =0; i < trollyRow.size(); i++){
 				products.add(prodRepo.findById(trollyRow.get(i).get().getProductId()));
 			}
 
-			Object[] temp = trollyRow.toArray();
-			Object[] temp2 = products.toArray();
-
-			for(int i =0 ; i<trollyRow.size(); i++){
-				result.add(temp[i]);
-				result.add(temp2[i]);
+			List fin = new ArrayList();
+			for (int i = 0; i < trollyRow.size(); i++){
+				Optional<TrollyEntity> order = trollyRow.get(i);
+				Optional<ProductEntity> product = products.get(i);
+				List temp3 = new ArrayList();
+				temp3.add(order.get().getProductId());
+				temp3.add(product.get().getName());
+				temp3.add(product.get().getDescription());
+				temp3.add(product.get().getPrice());
+				temp3.add(order.get().getQuantity());
+				fin.add(temp3);
 			}
 
-			return new ResponseEntity<>(result, HttpStatus.ACCEPTED);
+			return new ResponseEntity<>(fin, HttpStatus.ACCEPTED);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
