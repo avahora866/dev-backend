@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import response.CustomerResponse;
 
 import javax.mail.*;
 import java.util.*;
@@ -275,7 +276,6 @@ public class Controller {
 		if(userRepo.existsById(id)){
 			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(id);
 			List<Optional<ProductEntity>> products = new ArrayList<>();
-			List<Object> result = new ArrayList<>();
 
 			for(int i =0; i < currentOrderRow.size(); i++){
 				products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
@@ -285,13 +285,13 @@ public class Controller {
 			for (int i = 0; i < currentOrderRow.size(); i++){
 				Optional<CurrentOrderEntity> order = currentOrderRow.get(i);
 				Optional<ProductEntity> product = products.get(i);
-				List temp3 = new ArrayList();
-				temp3.add(order.get().getProductId());
-				temp3.add(product.get().getName());
-				temp3.add(product.get().getDescription());
-				temp3.add(product.get().getPrice());
-				temp3.add(order.get().getQuantity());
-				fin.add(temp3);
+                CustomerResponse cstResponse = new CustomerResponse();
+                cstResponse.setProductId(order.get().getProductId());
+                cstResponse.setName(product.get().getName());
+                cstResponse.setDescription(product.get().getDescription());
+                cstResponse.setPrice(product.get().getPrice());
+                cstResponse.setQuantity(order.get().getQuantity());
+                fin.add(cstResponse);
 			}
 
 			return new ResponseEntity<>(fin, HttpStatus.ACCEPTED);
@@ -305,7 +305,7 @@ public class Controller {
 	//Returns the customers trolly
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getTrolly")
-	public ResponseEntity<List<Object>> getTrolly(@RequestParam int id ) {
+	public ResponseEntity<List<CustomerResponse>> getTrolly(@RequestParam int id ) {
 		if(userRepo.existsById(id)){
 			List<Optional<TrollyEntity>> trollyRow = trollyRepo.findByCustomerId(id);
 			List<Optional<ProductEntity>> products = new ArrayList<>();
@@ -318,13 +318,13 @@ public class Controller {
 			for (int i = 0; i < trollyRow.size(); i++){
 				Optional<TrollyEntity> order = trollyRow.get(i);
 				Optional<ProductEntity> product = products.get(i);
-				List temp3 = new ArrayList();
-				temp3.add(order.get().getProductId());
-				temp3.add(product.get().getName());
-				temp3.add(product.get().getDescription());
-				temp3.add(product.get().getPrice());
-				temp3.add(order.get().getQuantity());
-				fin.add(temp3);
+                CustomerResponse cstResponse = new CustomerResponse();
+                cstResponse.setProductId(order.get().getProductId());
+                cstResponse.setName(product.get().getName());
+                cstResponse.setDescription(product.get().getDescription());
+                cstResponse.setPrice(product.get().getPrice());
+                cstResponse.setQuantity(order.get().getQuantity());
+                fin.add(cstResponse);
 			}
 
 			return new ResponseEntity<>(fin, HttpStatus.ACCEPTED);
