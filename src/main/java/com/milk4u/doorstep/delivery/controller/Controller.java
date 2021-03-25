@@ -111,51 +111,51 @@ public class Controller {
 	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delUser")
-	public ResponseEntity<String> delUser(@RequestBody Identification id) {
-		if(userRepo.findById(id.getUserIdentification()).isPresent()){
-			String type = userRepo.findById(id.getUserIdentification()).get().getType();
+	public ResponseEntity<String> delUser(@RequestParam int id) {
+		if(userRepo.findById(id).isPresent()){
+			String type = userRepo.findById(id).get().getType();
 			if(type.equals("Customer")){
-				if(!(trollyRepo.findByCustomerId(id.getUserIdentification()).isEmpty())){
+				if(!(trollyRepo.findByCustomerId(id).isEmpty())){
 					List<TrollyEntity> rows = new ArrayList<>();
 					Iterator<TrollyEntity> iterator = trollyRepo.findAll().iterator();
 					while (iterator.hasNext()) {
 						rows.add(iterator.next());
 					}
 					for(int i = 0; i < rows.size(); i++){
-						if(rows.get(i).getCustomerId() == id.getUserIdentification()){
+						if(rows.get(i).getCustomerId() == id){
 							trollyRepo.deleteById(rows.get(i).getTrollyId());
 						}
 					}
 				}
 
-				if(!(currentOrderRepo.findByCustomerId(id.getUserIdentification()).isEmpty())){
+				if(!(currentOrderRepo.findByCustomerId(id).isEmpty())){
 					List<CurrentOrderEntity> rows2 = new ArrayList<>();
 					Iterator<CurrentOrderEntity> iterator = currentOrderRepo.findAll().iterator();
 					while (iterator.hasNext()) {
 						rows2.add(iterator.next());
 					}
 					for(int i = 0; i < rows2.size(); i++){
-						if(rows2.get(i).getCustomerId() == id.getUserIdentification()){
+						if(rows2.get(i).getCustomerId() == id){
 							currentOrderRepo.deleteById(rows2.get(i).getOrderId());
 						}
 					}
 				}
 			}else if (type.equals("Driver")){
-				if(!(dropListRepo.findByDriverId(id.getUserIdentification()).isEmpty())){
+				if(!(dropListRepo.findByDriverId(id).isEmpty())){
 					List<DroplistEntity> rows3 = new ArrayList<>();
 					Iterator<DroplistEntity> iterator = dropListRepo.findAll().iterator();
 					while (iterator.hasNext()) {
 						rows3.add(iterator.next());
 					}
 					for(int i = 0; i < rows3.size(); i++){
-						if(rows3.get(i).getDriverId() == id.getUserIdentification()){
+						if(rows3.get(i).getDriverId() == id){
 							dropListRepo.deleteById(rows3.get(i).getDroplistId());
 						}
 					}
 				}
 			}
 
-			userRepo.deleteById(id.getUserIdentification());
+			userRepo.deleteById(id);
 			return new ResponseEntity("Deletion succsefull", HttpStatus.OK);
 		}else{
 			return new ResponseEntity("UserID not found", HttpStatus.NOT_FOUND);
@@ -193,11 +193,9 @@ public class Controller {
 	}
 
 	//Deletes a product
-	@CrossOrigin(origins = "http://localhost:3000")
-	@DeleteMapping(path="/delProduct")
-	public ResponseEntity<String> delProduct(@RequestBody Identification pId ) {
-		if(prodRepo.findById(pId.getUserIdentification()).isPresent()){
-			prodRepo.deleteById(pId.getUserIdentification());
+	public ResponseEntity<String> delProduct(@RequestParam int pId ) {
+		if(prodRepo.findById(pId).isPresent()){
+			prodRepo.deleteById(pId);
 			return new ResponseEntity<>("Deletion succesfull", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>("No product Id found", HttpStatus.NOT_FOUND);
@@ -399,11 +397,11 @@ public class Controller {
 	//Deletes a product from the trolly
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delProductFromTrolly")
-	public  ResponseEntity<String> delProductFromTrolly(@RequestBody TrollyDetailsDel tdd ) {
-		if(trollyRepo.existsById(tdd.getCstId())){
-			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(tdd.getCstId());
+	public  ResponseEntity<String> delProductFromTrolly(@RequestParam int cstId, int prodId ) {
+		if(trollyRepo.existsById(cstId)){
+			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(cstId);
 			for(int i =0; i<temp.size();i++){
-				if(temp.get(i).get().getProductId() == tdd.getProdId()){
+				if(temp.get(i).get().getProductId() == prodId){
 					trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 				}
 			}
@@ -417,9 +415,9 @@ public class Controller {
 	//Deletes the trolly of a customer
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delTrolly")
-	public  ResponseEntity<String> delTrolly(@RequestBody Identification id ) {
-		if(userRepo.existsById(id.getUserIdentification())){
-			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
+	public  ResponseEntity<String> delTrolly(@RequestParam int id ) {
+		if(userRepo.existsById(id)){
+			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id);
 			for(int i = 0; i <temp.size(); i++ ){
 				trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 			}
@@ -479,12 +477,12 @@ public class Controller {
 	//Deletes a product in the order
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delProductFromOrder")
-	public  ResponseEntity<Optional<ProductEntity>> delProductFromOrder(@RequestBody TrollyDetailsDel tdd ) {
-		if(userRepo.existsById(tdd.getCstId())){
-			List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(tdd.getCstId());
+	public  ResponseEntity<Optional<ProductEntity>> delProductFromOrder(@RequestParam int cstId, int prodId) {
+		if(userRepo.existsById(cstId)){
+			List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(cstId);
 			Optional<ProductEntity> result = null;
 			for(int i =0; i<temp.size();i++){
-				if(temp.get(i).get().getProductId() == tdd.getProdId()){
+				if(temp.get(i).get().getProductId() == prodId){
 					currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
 					result = prodRepo.findById(temp.get(i).get().getCustomerId());
 				}
@@ -540,9 +538,9 @@ public class Controller {
 	//Deletes the order of a customer
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delOrder")
-	public  ResponseEntity<String> delOrder(@RequestBody Identification id ) {
-		if(userRepo.existsById(id.getUserIdentification())){
-			List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(id.getUserIdentification());
+	public  ResponseEntity<String> delOrder(@RequestParam int id ) {
+		if(userRepo.existsById(id)){
+			List<Optional<CurrentOrderEntity>> temp = currentOrderRepo.findByCustomerId(id);
 			for(int i = 0; i <temp.size(); i++ ){
 				currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
 			}
