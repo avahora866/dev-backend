@@ -193,6 +193,8 @@ public class Controller {
 	}
 
 	//Deletes a product
+	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delProduct")
 	public ResponseEntity<String> delProduct(@RequestParam int pId ) {
 		if(prodRepo.findById(pId).isPresent()){
 			prodRepo.deleteById(pId);
