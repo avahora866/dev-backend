@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
 
-import javax.mail.*;
+//import javax.mail.*;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
@@ -25,6 +25,8 @@ public class Controller {
 	private CurrentOrderRepository currentOrderRepo;
 	@Autowired
 	private TrollyRepository trollyRepo;
+	@Autowired
+	private InvoiceRepository invoiceRepo;
 
 
 	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
@@ -108,7 +110,7 @@ public class Controller {
 		return new ResponseEntity<>("User added", HttpStatus.OK);
 	}
 
-	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist
+//	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delUser")
 	public ResponseEntity<String> delUser(@RequestParam int id) {
@@ -140,6 +142,24 @@ public class Controller {
 						}
 					}
 				}
+
+				if(!(invoiceRepo.findByCustomerId(id).isEmpty())){
+					List<InvoiceEntity> rows2 = new ArrayList<>();
+					Iterator<InvoiceEntity> iterator = invoiceRepo.findAll().iterator();
+					while (iterator.hasNext()) {
+						rows2.add(iterator.next());
+					}
+					for(int i = 0; i < rows2.size(); i++){
+						if(rows2.get(i).getCustomerId() == id){
+							invoiceRepo.deleteById(rows2.get(i).getInvoiceId());
+						}
+					}
+				}
+
+				if(dropListRepo.findByCustomerId(id).isPresent()){
+					dropListRepo.deleteById(dropListRepo.findByCustomerId(id).get().getDroplistId());
+				}
+
 			}else if (type.equals("Driver")){
 				if(!(dropListRepo.findByDriverId(id).isEmpty())){
 					List<DroplistEntity> rows3 = new ArrayList<>();
@@ -153,6 +173,19 @@ public class Controller {
 						}
 					}
 				}
+
+				if(!(invoiceRepo.findByDriverId(id).isEmpty())){
+					List<InvoiceEntity> rows2 = new ArrayList<>();
+					Iterator<InvoiceEntity> iterator = invoiceRepo.findAll().iterator();
+					while (iterator.hasNext()) {
+						rows2.add(iterator.next());
+					}
+					for(int i = 0; i < rows2.size(); i++){
+						if(rows2.get(i).getDriverId() == id){
+							invoiceRepo.deleteById(rows2.get(i).getInvoiceId());
+						}
+					}
+				}
 			}
 
 			userRepo.deleteById(id);
@@ -160,8 +193,8 @@ public class Controller {
 		}else{
 			return new ResponseEntity("UserID not found", HttpStatus.NOT_FOUND);
 		}
-
 	}
+
 
 	//Edits a Product
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -547,18 +580,18 @@ public class Controller {
 		}
 	}
 
-	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path="/sendInvoice")
-	public void sendInvoice(@RequestBody Identification id) throws MessagingException {
+//	@CrossOrigin(origins = "http://localhost:3000")
+//	@GetMapping(path="/sendInvoice")
+//	public void sendInvoice(@RequestBody Identification id) throws MessagingException {
 //		List<Optional<CurrentOrderEntity>> currOrder = currentOrderRepo.findByCustomerId(id.getUserIdentification());
 //		Optional<UserEntity> driver = userRepo.findById(dropListRepo.findByCustomerId(id.getUserIdentification()).get().getDriverId());
 //		List<Optional<ProductEntity>> products = new ArrayList<>();
 //		for(int i =0; i< currOrder.size(); i++){
 //			products.add(prodRepo.findById(currOrder.get(i).get().getProductId()));
 //		}
-		Optional<UserEntity> customer = userRepo.findById(id.getUserIdentification());
-		String cstEmail = customer.get().getEmail();
-
-	}
+//		Optional<UserEntity> customer = userRepo.findById(id.getUserIdentification());
+//		String cstEmail = customer.get().getEmail();
+//
+//	}
 
 }

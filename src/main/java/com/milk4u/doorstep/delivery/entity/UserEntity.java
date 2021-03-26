@@ -1,7 +1,6 @@
 package com.milk4u.doorstep.delivery.entity;
 
 import java.sql.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
