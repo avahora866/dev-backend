@@ -400,17 +400,17 @@ public class Controller {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delProductFromTrolly")
 	public  ResponseEntity<String> delProductFromTrolly(@RequestParam int cstId, int prodId ) {
-		if(trollyRepo.existsById(cstId)){
-			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(cstId);
+		List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(cstId);
+
+		if(temp.isEmpty()){
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}else{
 			for(int i =0; i<temp.size();i++){
 				if(temp.get(i).get().getProductId() == prodId){
 					trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 				}
 			}
-
 			return new ResponseEntity<>("Deletion succesfull", HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -423,7 +423,6 @@ public class Controller {
 			for(int i = 0; i <temp.size(); i++ ){
 				trollyRepo.deleteById(temp.get(i).get().getTrollyId());
 			}
-
 			return new ResponseEntity<>("Trolly Deleted", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -436,17 +435,17 @@ public class Controller {
 	@PutMapping(path="/createOrder")
 	public ResponseEntity<String> createOrder (@RequestBody Identification id){
 		if (userRepo.existsById(id.getUserIdentification())) {
+			delOrder(id.getUserIdentification());
 			List<Optional<TrollyEntity>> temp = trollyRepo.findByCustomerId(id.getUserIdentification());
-
-			for(int i = 0; i < temp.size(); i++ ){
-				CurrentOrderEntity t1 = new CurrentOrderEntity();
-				t1.setCustomerId(temp.get(i).get().getCustomerId());
-				t1.setProductId(temp.get(i).get().getProductId());
-				t1.setQuantity(temp.get(i).get().getQuantity());
-				currentOrderRepo.save(t1);
-			}
-
-			return new ResponseEntity<>("Order created", HttpStatus.OK);
+				for(int i = 0; i < temp.size(); i++ ){
+					CurrentOrderEntity t1 = new CurrentOrderEntity();
+					t1.setCustomerId(temp.get(i).get().getCustomerId());
+					t1.setProductId(temp.get(i).get().getProductId());
+					t1.setQuantity(temp.get(i).get().getQuantity());
+					currentOrderRepo.save(t1);
+				}
+			delTrolly(id.getUserIdentification());
+				return new ResponseEntity<>("Order created", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -503,32 +502,28 @@ public class Controller {
 		if(userRepo.existsById(id.getUserIdentification())){
 			List<Optional<TrollyEntity>> trollyRows = trollyRepo.findByCustomerId(id.getUserIdentification());
 			List<Optional<CurrentOrderEntity>> currOrderRows = currentOrderRepo.findByCustomerId(id.getUserIdentification());
-			List<Integer> currOrderIds = new ArrayList<>();
-			List<Integer> trollyIds = new ArrayList<>();
-
-
-
-			for(int i = 0; i < currOrderRows.size(); i++){
-				for(int j = 0; j < trollyRows.size(); j++){
-					if(currOrderRows.get(i).get().getProductId() == trollyRows.get(j).get().getProductId()){
-						currOrderIds.add(currOrderRows.get(i).get().getOrderId());
-						trollyIds.add(trollyRows.get(j).get().getTrollyId());
-					}
-				}
-			}
 
 			for(int i = 0; i < trollyRows.size(); i++){
-				CurrentOrderEntity tempEntity = new CurrentOrderEntity();
-				Optional<CurrentOrderEntity> tempEntity2 = null;
-				if(currOrderIds.contains(currOrderRows.get(i).get().getOrderId())){
-					tempEntity2 = currentOrderRepo.findById(currOrderRows.get(i).get().getOrderId());
-					tempEntity2.get().setQuantity(tempEntity2.get().getQuantity() + trollyRows.get(i).get().getQuantity());
-					currentOrderRepo.save(tempEntity2.get());
-				}else{
-					tempEntity.setCustomerId(trollyRows.get(i).get().getCustomerId());
-					tempEntity.setProductId(trollyRows.get(i).get().getProductId());
-					tempEntity.setQuantity(trollyRows.get(i).get().getQuantity());
-					currentOrderRepo.save(tempEntity);
+				Optional<CurrentOrderEntity> tempEntity = null;
+				for(int j =0; j< currOrderRows.size(); j++){
+					if(currOrderRows.get(j).get().getProductId() == trollyRows.get(i).get().getProductId()){
+					tempEntity = currentOrderRepo.findById(currOrderRows.get(j).get().getOrderId());
+					tempEntity.get().setQuantity(tempEntity.get().getQuantity() + trollyRows.get(i).get().getQuantity());
+					currentOrderRepo.save(tempEntity.get());
+					trollyRepo.deleteById(trollyRows.get(i).get().getTrollyId());
+				}
+			}
+		}
+
+			trollyRows = trollyRepo.findByCustomerId(id.getUserIdentification());
+			if(!trollyRows.isEmpty()){
+				for(int i = 0; i<trollyRows.size(); i++){
+					CurrentOrderEntity temp2 = new CurrentOrderEntity();
+					temp2.setCustomerId(trollyRows.get(i).get().getCustomerId());
+					temp2.setProductId(trollyRows.get(i).get().getProductId());
+					temp2.setQuantity(trollyRows.get(i).get().getQuantity());
+					currentOrderRepo.save(temp2);
+					trollyRepo.deleteById(trollyRows.get(i).get().getTrollyId());
 				}
 			}
 			return new ResponseEntity<>("Order updated", HttpStatus.OK);
@@ -546,7 +541,6 @@ public class Controller {
 			for(int i = 0; i <temp.size(); i++ ){
 				currentOrderRepo.deleteById(temp.get(i).get().getOrderId());
 			}
-
 			return new ResponseEntity<>("Order Deleted", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
