@@ -16,6 +16,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
+
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Date;
 
@@ -319,34 +321,18 @@ public class Controller {
 	@GetMapping(path="/printDroplist")
 	public void printDroplist(@RequestParam int id) {
 		List<Optional<DroplistEntity>> droplistRows = dropListRepo.findByDriverId(id);
-		List<CustomerResponse> cstCurrOrders = new ArrayList<>();
-		List<Optional<CurrentOrderEntity>> eachCustomersOrders = new ArrayList<>();
 		List<Optional<UserEntity>> allCustomers = new ArrayList<>();
+		List<List<CustomerResponse>> finalList = new ArrayList<>();
 
 		for(int i = 0; i< droplistRows.size(); i++){
-			eachCustomersOrders = currentOrderRepo.findByCustomerId(droplistRows.get(i).get().getCustomerId());
-			for(int j = 0; j < eachCustomersOrders.size(); j++){
-				CustomerResponse temp = new CustomerResponse();
-				temp.setProductId(eachCustomersOrders.get(j).get().getProductId());
-				temp.setName(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getName());
-				temp.setDescription(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getDescription());
-				temp.setPrice(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getPrice());
-				temp.setQuantity(eachCustomersOrders.get(j).get().getQuantity());
-				cstCurrOrders.add(temp);
-			}
 			allCustomers.add(userRepo.findById(dropListRepo.findById(droplistRows.get(i).get().getDroplistId()).get().getCustomerId()));
 		}
 
-		List<List<CustomerResponse>> finalList = new ArrayList<>();
 		for(int i = 0; i < allCustomers.size(); i++){
 			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(allCustomers.get(i).get().getUserId());
-//			List<Optional<ProductEntity>> products = new ArrayList<>();
-
-//			for(int j =0; j < currentOrderRow.size(); j++){
-//				products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
-//			}
 
 			List fin = new ArrayList();
+
 			for (int l = 0; l < currentOrderRow.size(); l++){
 				Optional<CurrentOrderEntity> order = currentOrderRow.get(l);
 				Optional<ProductEntity> product = prodRepo.findById(currentOrderRow.get(l).get().getProductId());
@@ -358,6 +344,7 @@ public class Controller {
 				cstResponse.setQuantity(order.get().getQuantity());
 				fin.add(cstResponse);
 			}
+
 			finalList.add(fin);
 		}
 

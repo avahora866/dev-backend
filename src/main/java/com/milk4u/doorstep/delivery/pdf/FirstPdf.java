@@ -13,6 +13,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
+import com.itextpdf.text.pdf.PdfDocument;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.milk4u.doorstep.delivery.entity.CurrentOrderEntity;
 import com.milk4u.doorstep.delivery.entity.DroplistEntity;
@@ -84,9 +85,10 @@ public class FirstPdf {
 
     private static void addContent(Document document, List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses) throws DocumentException {
         for(int i = 0; i < allCustomers.size(); i++){
-            Anchor anchor = new Anchor("Customer ID: " + allCustomers.get(i).get().getUserId(), catFont);
-            anchor.setName("Customer Name: " + allCustomers.get(i).get().getfName() + allCustomers.get(i).get().getlName() +"\nPostCode: "+ allCustomers.get(i).get().getPostcode());
-            Chapter catPart = new Chapter(new Paragraph(anchor), 1);
+            Chapter catPart = new Chapter(new Paragraph("Customer ID: " + allCustomers.get(i).get().getUserId(), catFont), i + 1);
+            Paragraph nameAndAreaPara = new Paragraph("Customer Details", subFont);
+            Section nameAndArea = catPart.addSection(nameAndAreaPara);
+            nameAndArea.add(new Paragraph("Customer Name: " + allCustomers.get(i).get().getfName() + allCustomers.get(i).get().getlName() +"\nPost Code: "+ allCustomers.get(i).get().getPostcode()));
             Paragraph subPara = new Paragraph("Products", subFont);
             Section subCatPart = catPart.addSection(subPara);
             List<CustomerResponse> cstOrder = allCustomerResponses.get(i);
