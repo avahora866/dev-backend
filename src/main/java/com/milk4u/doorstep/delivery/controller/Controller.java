@@ -306,6 +306,13 @@ public class Controller {
 		dropListRepo.deleteAll();
 	}
 
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path="/printDroplist")
+	public void printDroplist(@RequestParam int id) {
+
+
+	}
+
 	//CUSTOMER-------------------------------------------------------------------------------------------
 
 	//Returns the customers current order
