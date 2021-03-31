@@ -1,18 +1,23 @@
 package com.milk4u.doorstep.delivery.controller;
 
+import com.milk4u.doorstep.delivery.email.*;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
 
-//import javax.mail.*;
+import javax.mail.SendFailedException;
 import java.util.*;
 
 @RestController // This means that this class is a Controller
+@Component
 public class Controller {
 	
 	@Autowired
@@ -27,7 +32,8 @@ public class Controller {
 	private TrollyRepository trollyRepo;
 	@Autowired
 	private InvoiceRepository invoiceRepo;
-
+	@Autowired
+	private EmailServiceImpl emailSender;
 
 	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -110,7 +116,7 @@ public class Controller {
 		return new ResponseEntity<>("User added", HttpStatus.OK);
 	}
 
-//	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
+	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
 	@CrossOrigin(origins = "http://localhost:3000")
 	@DeleteMapping(path="/delUser")
 	public ResponseEntity<String> delUser(@RequestParam int id) {
@@ -580,18 +586,47 @@ public class Controller {
 		}
 	}
 
-//	@CrossOrigin(origins = "http://localhost:3000")
-//	@GetMapping(path="/sendInvoice")
-//	public void sendInvoice(@RequestBody Identification id) throws MessagingException {
-//		List<Optional<CurrentOrderEntity>> currOrder = currentOrderRepo.findByCustomerId(id.getUserIdentification());
-//		Optional<UserEntity> driver = userRepo.findById(dropListRepo.findByCustomerId(id.getUserIdentification()).get().getDriverId());
-//		List<Optional<ProductEntity>> products = new ArrayList<>();
-//		for(int i =0; i< currOrder.size(); i++){
-//			products.add(prodRepo.findById(currOrder.get(i).get().getProductId()));
-//		}
-//		Optional<UserEntity> customer = userRepo.findById(id.getUserIdentification());
-//		String cstEmail = customer.get().getEmail();
-//
-//	}
+	@CrossOrigin(origins = "http://localhost:3000")
+	@RequestMapping(path="/sendInvoice", method = RequestMethod.POST)
+	public void sendInvoice()  {
+        Iterator<DroplistEntity> droplistRows = dropListRepo.findAll().iterator();
+        List<UserEntity> customers = new ArrayList<>();
+        List<UserEntity> drivers = new ArrayList<>();
+        List<Optional<CurrentOrderEntity>> currOrders = new ArrayList<>();
+        List<CustomerResponse> cstOrders = new ArrayList<>();
+        while(droplistRows.hasNext()){
+            DroplistEntity temp = droplistRows.next();
+            customers.add(userRepo.findById(temp.getCustomerId()).get());
+            drivers.add(userRepo.findById(temp.getDriverId()).get());
+        }
+
+        for(int i = 0; i < customers.size(); i++){
+            currOrders.addAll(currentOrderRepo.findByCustomerId(customers.get(i).getUserId()));
+            for(int j = 0; j < currOrders.size(); j++ ){
+                CustomerResponse temp = new CustomerResponse();
+                temp.setProductId(currOrders.get(j).get().getProductId());
+                temp.setName(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getName());
+                temp.setDescription(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getDescription());
+                temp.setPrice(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getPrice());
+                temp.setQuantity(currOrders.get(j).get().getQuantity());
+                cstOrders.add(temp);
+            }
+            currOrders.clear();
+
+            String email = customers.get(i).getEmail();
+            String subject = "Invoice for Customer Id: " + customers.get(i).getUserId();
+            String message = "Customer Name: " + customers.get(i).getfName() +" "+ customers.get(i).getlName() +"\n\nDriver Name: "+ drivers.get(i).getfName() +" "+drivers.get(i).getlName() +"\n\nProducts: ";
+            int totalPrice = 0;
+            for(int l = 0; l < cstOrders.size(); l++){
+                message += "\nName: " + cstOrders.get(l).getName() + "\nDescription: " + cstOrders.get(l).getDescription() + "\nPrice: £" +cstOrders.get(l).getPrice() + "\nQuantity: " + cstOrders.get(l).getQuantity() + "\n\n";
+                totalPrice += cstOrders.get(l).getPrice() * cstOrders.get(l).getQuantity();
+            }
+            message += "\n\nTotal Price: £" + totalPrice;
+            message += "\nThank you for shopping at Milk4u";
+            emailSender.sendSimpleMessage(email, subject, message);
+        }
+
+
+	}
 
 }
