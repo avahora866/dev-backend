@@ -16,9 +16,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
+import response.DroplistResponse;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import javax.mail.SendFailedException;
@@ -109,22 +113,40 @@ public class Controller {
 
 	}
 
+	public Date convertToDateViaSqlTimestamp(LocalDateTime dateToConvert) {
+		return java.sql.Timestamp.valueOf(dateToConvert);
+	}
+
+
 	//Adds a new User can be used for Drivers, Admins and Customers
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addUser")
 	public ResponseEntity<String> addUser(@RequestBody AddUser au ) {
-		UserEntity temp = new UserEntity();
-		temp.setUsername(au.getUserName());
-		temp.setPassword(au.getPassword());
-		temp.setEmail(au.getEmail());
-		temp.setfName(au.getfName());
-		temp.setlName(au.getlName());
-		temp.setDateOfBirth(au.getDateOfBirth());
-		temp.setPostcode(au.getPostCode());
-		temp.setArea(au.getArea());
-		temp.setType(au.getType());
-		userRepo.save(temp);
-		return new ResponseEntity<>("User added", HttpStatus.OK);
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		Date compare = convertToDateViaSqlTimestamp(now);
+		Calendar cal = Calendar.getInstance();
+		cal.set(compare.getYear(), compare.getMonth(), compare.getDate()); // Comment this out for today...
+		cal.add(Calendar.YEAR, -18);
+		cal.add(Calendar.DATE, -1);
+		Date min = cal.getTime();
+		if(au.getDateOfBirth().before(compare) && au.getDateOfBirth().before(min)){
+			UserEntity temp = new UserEntity();
+			temp.setUsername(au.getUserName());
+			temp.setPassword(au.getPassword());
+			temp.setEmail(au.getEmail());
+			temp.setfName(au.getfName());
+			temp.setlName(au.getlName());
+			temp.setDateOfBirth(au.getDateOfBirth());
+			temp.setPostcode(au.getPostCode());
+			temp.setArea(au.getArea());
+			temp.setType(au.getType());
+			userRepo.save(temp);
+			return new ResponseEntity<>("User added", HttpStatus.OK);
+		}else{
+			return new ResponseEntity<>("User not added", HttpStatus.OK);
+		}
+
 	}
 
 	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
@@ -259,15 +281,33 @@ public class Controller {
 	//Returns the drop list for the specified driver
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getDroplist")
-	public ResponseEntity<List<Optional<UserEntity>>> getDroplist(@RequestParam int id ) {
+	public ResponseEntity<List<DroplistResponse>> getDroplist(@RequestParam int id ) {
 		if(userRepo.findById(id).isPresent()){
 			List<Optional<DroplistEntity>> driverRow = dropListRepo.findByDriverId(id);
-			List<Optional<UserEntity>> customers = new ArrayList<>();
+			List<DroplistResponse> result = new ArrayList<>();
 
 			for(int i =0; i < driverRow.size(); i++){
-				customers.add(userRepo.findById(driverRow.get(i).get().getCustomerId()));
+				DroplistResponse droplistResponse = new DroplistResponse();
+				droplistResponse.setCstId(driverRow.get(i).get().getCustomerId());
+				droplistResponse.setEmail(userRepo.findById(driverRow.get(i).get().getCustomerId()).get().getEmail());
+				droplistResponse.setfName(userRepo.findById(driverRow.get(i).get().getCustomerId()).get().getfName());
+				droplistResponse.setlName(userRepo.findById(driverRow.get(i).get().getCustomerId()).get().getlName());
+				droplistResponse.setPostcode(userRepo.findById(driverRow.get(i).get().getCustomerId()).get().getPostcode());
+				List<CustomerResponse> customerResponseList = new ArrayList<>();
+				List<Optional<CurrentOrderEntity>> currOrders = currentOrderRepo.findByCustomerId(driverRow.get(i).get().getCustomerId());
+				for(int j = 0; j < currOrders.size(); j++){
+					CustomerResponse customerResponse = new CustomerResponse();
+					customerResponse.setProductId(currOrders.get(j).get().getProductId());
+					customerResponse.setName(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getName());
+					customerResponse.setDescription(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getDescription());
+					customerResponse.setPrice(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getPrice());
+					customerResponse.setQuantity(currOrders.get(j).get().getQuantity());
+					customerResponseList.add(customerResponse);
+				}
+				droplistResponse.setOrders(customerResponseList);
+				result.add(droplistResponse);
 			}
-			return new ResponseEntity<>(customers, HttpStatus.OK);
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}

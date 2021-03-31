@@ -50,7 +50,20 @@
 			<artifactId>itextpdf</artifactId>
 			<version>5.3.4</version>
 		</dependency>
+		<dependency>
+			<groupId> e-iceblue </groupId>
+			<artifactId>spire.pdf</artifactId>
+			<version>3.11.6</version>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>com.e-iceblue</id>
+			<name>e-iceblue</name>
+			<url>http://repo.e-iceblue.com/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -60,5 +73,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
