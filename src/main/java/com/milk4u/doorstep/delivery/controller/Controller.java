@@ -1,9 +1,13 @@
 package com.milk4u.doorstep.delivery.controller;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfDocument;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.milk4u.doorstep.delivery.email.*;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +16,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
+import java.io.FileOutputStream;
+import java.util.Date;
 
 import javax.mail.SendFailedException;
 import java.util.*;
+import java.util.List;
+
+import static com.milk4u.doorstep.delivery.pdf.FirstPdf.createPDF;
 
 @RestController // This means that this class is a Controller
 @Component
@@ -309,8 +318,50 @@ public class Controller {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/printDroplist")
 	public void printDroplist(@RequestParam int id) {
+		List<Optional<DroplistEntity>> droplistRows = dropListRepo.findByDriverId(id);
+		List<CustomerResponse> cstCurrOrders = new ArrayList<>();
+		List<Optional<CurrentOrderEntity>> eachCustomersOrders = new ArrayList<>();
+		List<Optional<UserEntity>> allCustomers = new ArrayList<>();
 
+		for(int i = 0; i< droplistRows.size(); i++){
+			eachCustomersOrders = currentOrderRepo.findByCustomerId(droplistRows.get(i).get().getCustomerId());
+			for(int j = 0; j < eachCustomersOrders.size(); j++){
+				CustomerResponse temp = new CustomerResponse();
+				temp.setProductId(eachCustomersOrders.get(j).get().getProductId());
+				temp.setName(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getName());
+				temp.setDescription(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getDescription());
+				temp.setPrice(prodRepo.findById(eachCustomersOrders.get(j).get().getProductId()).get().getPrice());
+				temp.setQuantity(eachCustomersOrders.get(j).get().getQuantity());
+				cstCurrOrders.add(temp);
+			}
+			allCustomers.add(userRepo.findById(dropListRepo.findById(droplistRows.get(i).get().getDroplistId()).get().getCustomerId()));
+		}
 
+		List<List<CustomerResponse>> finalList = new ArrayList<>();
+		for(int i = 0; i < allCustomers.size(); i++){
+			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(allCustomers.get(i).get().getUserId());
+//			List<Optional<ProductEntity>> products = new ArrayList<>();
+
+//			for(int j =0; j < currentOrderRow.size(); j++){
+//				products.add(prodRepo.findById(currentOrderRow.get(i).get().getProductId()));
+//			}
+
+			List fin = new ArrayList();
+			for (int l = 0; l < currentOrderRow.size(); l++){
+				Optional<CurrentOrderEntity> order = currentOrderRow.get(l);
+				Optional<ProductEntity> product = prodRepo.findById(currentOrderRow.get(l).get().getProductId());
+				CustomerResponse cstResponse = new CustomerResponse();
+				cstResponse.setProductId(order.get().getProductId());
+				cstResponse.setName(product.get().getName());
+				cstResponse.setDescription(product.get().getDescription());
+				cstResponse.setPrice(product.get().getPrice());
+				cstResponse.setQuantity(order.get().getQuantity());
+				fin.add(cstResponse);
+			}
+			finalList.add(fin);
+		}
+
+		createPDF(userRepo.findById(id).get(), allCustomers, finalList);
 	}
 
 	//CUSTOMER-------------------------------------------------------------------------------------------
