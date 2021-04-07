@@ -122,15 +122,31 @@ public class Controller {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addUser")
 	public ResponseEntity<String> addUser(@RequestBody AddUser au ) {
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
-		Date compare = convertToDateViaSqlTimestamp(now);
-		Calendar cal = Calendar.getInstance();
-		cal.set(compare.getYear(), compare.getMonth(), compare.getDate()); // Comment this out for today...
-		cal.add(Calendar.YEAR, -18);
-		cal.add(Calendar.DATE, -1);
-		Date min = cal.getTime();
-		if(au.getDateOfBirth().before(compare) && au.getDateOfBirth().before(min)){
+		if(au.getType().equals("Customer")){
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			Date compare = convertToDateViaSqlTimestamp(now);
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.YEAR, -18);
+			cal.add(Calendar.DATE, -1);
+			Date min = cal.getTime();
+			if(au.getDateOfBirth().before(compare) && au.getDateOfBirth().before(min)){
+				UserEntity temp = new UserEntity();
+				temp.setUsername(au.getUserName());
+				temp.setPassword(au.getPassword());
+				temp.setEmail(au.getEmail());
+				temp.setfName(au.getfName());
+				temp.setlName(au.getlName());
+				temp.setDateOfBirth(au.getDateOfBirth());
+				temp.setPostcode(au.getPostCode());
+				temp.setArea(au.getArea());
+				temp.setType(au.getType());
+				userRepo.save(temp);
+				return new ResponseEntity<>("User added", HttpStatus.OK);
+			}else{
+				return new ResponseEntity<>("Date of birth is invalid ", HttpStatus.OK);
+			}
+		}else{
 			UserEntity temp = new UserEntity();
 			temp.setUsername(au.getUserName());
 			temp.setPassword(au.getPassword());
@@ -143,10 +159,7 @@ public class Controller {
 			temp.setType(au.getType());
 			userRepo.save(temp);
 			return new ResponseEntity<>("User added", HttpStatus.OK);
-		}else{
-			return new ResponseEntity<>("User not added", HttpStatus.OK);
-		}
-
+			}
 	}
 
 	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
