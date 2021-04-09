@@ -1,33 +1,22 @@
 package com.milk4u.doorstep.delivery.controller;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfDocument;
-import com.itextpdf.text.pdf.PdfWriter;
 import com.milk4u.doorstep.delivery.email.*;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
-import com.spire.pdf.FileFormat;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import response.CustomerResponse;
-import response.DroplistResponse;
+import com.milk4u.doorstep.delivery.response.CustomerResponse;
+import com.milk4u.doorstep.delivery.response.DroplistResponse;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import javax.mail.SendFailedException;
 import java.util.*;
 import java.util.List;
 

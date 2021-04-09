@@ -1,4 +1,4 @@
-package response;
+package com.milk4u.doorstep.delivery.response;
 
 import java.util.List;
 

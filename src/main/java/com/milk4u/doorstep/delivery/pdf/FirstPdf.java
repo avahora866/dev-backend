@@ -5,10 +5,6 @@ import java.util.*;
 import java.util.Date;
 import java.util.Optional;
 
-import com.itextpdf.text.pdf.PdfAction;
-import com.spire.pdf.*;
-
-import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Document;
@@ -17,21 +13,9 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.milk4u.doorstep.delivery.entity.CurrentOrderEntity;
-import com.milk4u.doorstep.delivery.entity.DroplistEntity;
-import com.milk4u.doorstep.delivery.entity.ProductEntity;
 import com.milk4u.doorstep.delivery.entity.UserEntity;
-import com.milk4u.doorstep.delivery.repository.CurrentOrderRepository;
-import com.milk4u.doorstep.delivery.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
-import com.milk4u.doorstep.delivery.controller.Controller;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import response.CustomerResponse;
-
-import javax.print.Doc;
+import com.milk4u.doorstep.delivery.response.CustomerResponse;
 
 @Component
 public class FirstPdf {

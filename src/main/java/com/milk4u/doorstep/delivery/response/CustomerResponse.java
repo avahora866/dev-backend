@@ -1,4 +1,4 @@
-package response;
+package com.milk4u.doorstep.delivery.response;
 
 public class CustomerResponse {
     private int productId;
