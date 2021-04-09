@@ -1,13 +1,15 @@
 package com.milk4u.doorstep.delivery.pdf;
 
 import com.spire.pdf.*;
+
+import javax.swing.text.Document;
 import java.awt.print.*;
 
 public class PrintingExample {
-    public static void main(String[] args) {
+    public static void Print(String filename) {
         //load the sample document
         PdfDocument pdf = new PdfDocument();
-        pdf.loadFromFile("c:/Users/User/Documents/Droplist.pdf");
+        pdf.loadFromFile(filename);
 
         PrinterJob loPrinterJob = PrinterJob.getPrinterJob();
         PageFormat loPageFormat  = loPrinterJob.defaultPage();

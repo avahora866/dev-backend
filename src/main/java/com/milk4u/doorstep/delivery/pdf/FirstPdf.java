@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.Date;
 import java.util.Optional;
 
+import com.itextpdf.text.pdf.PdfAction;
+import com.spire.pdf.*;
+
 import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chapter;
@@ -13,7 +16,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
-import com.itextpdf.text.pdf.PdfDocument;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.milk4u.doorstep.delivery.entity.CurrentOrderEntity;
 import com.milk4u.doorstep.delivery.entity.DroplistEntity;
@@ -28,6 +30,8 @@ import com.milk4u.doorstep.delivery.controller.Controller;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import response.CustomerResponse;
+
+import javax.print.Doc;
 
 @Component
 public class FirstPdf {
@@ -54,6 +58,7 @@ public class FirstPdf {
             e.printStackTrace();
         }
     }
+
 
     // iText allows to add metadata to the PDF which can be viewed in your Adobe
     // Reader
@@ -98,7 +103,7 @@ public class FirstPdf {
                 subCatPart.add(new Paragraph(product));
                 totalPrice += cstOrder.get(j).getPrice() * cstOrder.get(j).getQuantity();
             }
-            subCatPart.add(new Paragraph("Total Price: " + totalPrice));
+            subCatPart.add(new Paragraph("Total Price: £" + totalPrice));
             document.add(catPart);
         }
     }

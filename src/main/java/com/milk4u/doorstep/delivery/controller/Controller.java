@@ -7,6 +7,7 @@ import com.milk4u.doorstep.delivery.email.*;
 import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
+import com.spire.pdf.FileFormat;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import response.CustomerResponse;
 import response.DroplistResponse;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
@@ -30,6 +32,8 @@ import java.util.*;
 import java.util.List;
 
 import static com.milk4u.doorstep.delivery.pdf.FirstPdf.createPDF;
+import static com.milk4u.doorstep.delivery.pdf.PrintingExample.Print;
+
 
 @RestController // This means that this class is a Controller
 @Component
@@ -117,7 +121,6 @@ public class Controller {
 		return java.sql.Timestamp.valueOf(dateToConvert);
 	}
 
-
 	//Adds a new User can be used for Drivers, Admins and Customers
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/addUser")
@@ -131,20 +134,20 @@ public class Controller {
 			cal.add(Calendar.DATE, -1);
 			Date min = cal.getTime();
 			if(au.getDateOfBirth().before(compare) && au.getDateOfBirth().before(min)){
-				UserEntity temp = new UserEntity();
-				temp.setUsername(au.getUserName());
-				temp.setPassword(au.getPassword());
-				temp.setEmail(au.getEmail());
-				temp.setfName(au.getfName());
-				temp.setlName(au.getlName());
-				temp.setDateOfBirth(au.getDateOfBirth());
-				temp.setPostcode(au.getPostCode());
-				temp.setArea(au.getArea());
-				temp.setType(au.getType());
-				userRepo.save(temp);
+				Optional<UserEntity> temp = Optional.of(new UserEntity());
+				temp.get().setUsername(au.getUserName());
+				temp.get().setPassword(au.getPassword());
+				temp.get().setEmail(au.getEmail());
+				temp.get().setfName(au.getfName());
+				temp.get().setlName(au.getlName());
+				temp.get().setDateOfBirth(au.getDateOfBirth());
+				temp.get().setPostcode(au.getPostCode());
+				temp.get().setArea(au.getArea());
+				temp.get().setType(au.getType());
+				userRepo.save(temp.get());
 				return new ResponseEntity<>("User added", HttpStatus.OK);
 			}else{
-				return new ResponseEntity<>("Date of birth is invalid ", HttpStatus.OK);
+				return new ResponseEntity<>("Date of birth is invalid", HttpStatus.NOT_ACCEPTABLE);
 			}
 		}else{
 			UserEntity temp = new UserEntity();
@@ -159,7 +162,7 @@ public class Controller {
 			temp.setType(au.getType());
 			userRepo.save(temp);
 			return new ResponseEntity<>("User added", HttpStatus.OK);
-			}
+		}
 	}
 
 	//Deletes a User - If user is a customer deletes their order table as well as trolly - if user is a driver deletes their droplist -
@@ -253,16 +256,15 @@ public class Controller {
 	@PutMapping(path="/editProducts")
 	public ResponseEntity<String> editProducts(@RequestBody EditProd ep ) {
 		if(prodRepo.findById(ep.getId()).isPresent()){
-			ProductEntity temp = prodRepo.findById(ep.getId()).get();
-			temp.setName(ep.getName());
-			temp.setDescription(ep.getDescription());
-			temp.setPrice(ep.getPrice());
-			prodRepo.save(temp);
-			return new ResponseEntity<>("Product edited", HttpStatus.OK);
+				ProductEntity temp = prodRepo.findById(ep.getId()).get();
+				temp.setName(ep.getName());
+				temp.setDescription(ep.getDescription());
+				temp.setPrice(ep.getPrice());
+				prodRepo.save(temp);
+				return new ResponseEntity<>("Product edited", HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>("Could not find product", HttpStatus.NOT_FOUND);
 		}
-
 	}
 
 	//Adds a product
@@ -400,8 +402,11 @@ public class Controller {
 
 			finalList.add(fin);
 		}
-
 		createPDF(userRepo.findById(id).get(), allCustomers, finalList);
+		Print("c:/Users/User/Documents/Droplist.pdf");
+		File myObj = new File("c:/Users/User/Documents/Droplist.pdf");
+		myObj.delete();
+
 	}
 
 	//CUSTOMER-------------------------------------------------------------------------------------------
