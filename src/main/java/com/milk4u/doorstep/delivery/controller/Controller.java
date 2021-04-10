@@ -5,8 +5,11 @@ import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import com.milk4u.doorstep.delivery.response.CustomerResponse;
@@ -717,8 +720,14 @@ public class Controller {
             message += "\nThank you for shopping at Milk4u";
             emailSender.sendSimpleMessage(email, subject, message);
         }
+	}
 
-
+	//Method runs at 11:00pm - 23:00
+	@Scheduled(cron = "0 0 23 * * ?")
+	public void dailyMethodCall() {
+		delDroplist();
+		updateDroplist();
+		sendInvoice();
 	}
 
 }
