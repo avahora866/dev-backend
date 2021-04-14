@@ -1,0 +1,114 @@
+@startuml
+'https://plantuml.com/class-diagram
+class AddProduct {
+    #name: string
+    #description: string
+    #price: double
+    +string getName()
+    +void setName(String name)
+    +string getDescription()
+    +void setDescription(String description)
+    +string getPrice()
+    +void setPrice(Double price)
+}
+
+class AddUser {
+    #userName: string
+    #password: string
+    #email: string
+    #fName: string
+    #lName: string
+    #dateOfBirth: date
+    #postCode: string
+    #area: string
+    #type: string
+    +string getUserName()
+    +void setUserName(String userName)
+    +string getPassword()
+    +void setPassword(String password)
+    +string getEmail()
+    +void setEmail(String email)
+    +string getFName()
+    +void setFName(String fName)
+    +string getLName()
+    +void setLName(String lName)
+    +date getDateOfBirth()
+    +void setDateOfBirth(Date dateOfBirth)
+    +string getPostCode()
+    +void setPostCode(String postCode)
+    +string getArea()
+    +void setArea(String area)
+    +string getType()
+    +void setType(String type)
+}
+
+class EditProd {
+    #id: int
+    #name: string
+    #description: string
+    #price: double
+    +int getId()
+    +void setId(int id)
+    +string getName()
+    +void setName(String name)
+    +string getDescription()
+    +void setDescription(String description)
+    +double getPrice()
+    +void setPrice(double price)
+}
+
+class EditUser {
+    #userId: int
+    #username: string
+    #password: string
+    #email: string
+    #fName: string
+    #lName: string
+    #postcode: string
+    #area: string
+    +int getUserId()
+    +void setUserId(int userId)
+    +string getUsername()
+    +void setUsername(String username)
+    +string getPassword()
+    +void setPassword(String password)
+    +string getEmail()
+    +void setEmail(String email)
+    +string getFName()
+    +void setFName(String fName)
+    +string getLName()
+    +void setLName(String lName)
+    +string getPostcode()
+    +void setPostcode(String postcode)
+    +string getArea()
+    +void setArea(String area)
+}
+
+class Identification {
+    #userIdentification: int
+    +int getUserIdentification()
+    +void setUserIdentification(int userIdentification)
+}
+
+class LoginDetails {
+    #userName: string
+    #password: string
+    +string getUserName()
+    +void setUserName(String userName)
+    +string getPassword()
+    +void setPassword(String password)
+}
+
+class TrollyDetails {
+    #cstId: int
+    #prodId: int
+    #qty: int
+    +int getCstId()
+    +void setCstId(int cstId)
+    +int getProdId()
+    +void setProdId(int prodId)
+    +int getQty()
+    +void setQty(int qty)
+}
+
+@enduml

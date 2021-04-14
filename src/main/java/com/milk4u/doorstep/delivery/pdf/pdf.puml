@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Droplist {
+    #FILE: string
+    #catFont: font
+    #subFont: font
+    #smallBold: font
+    +void createPDF(UserEntity driver, java.util.List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
+    +void addMetaData(Document document)
+    +void addTitlePage(Document document, UserEntity driver)
+    +void addContent(Document document, List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
+    +void addEmptyLine(Paragraph paragraph, int number)
+}
+
+class PrintingDroplist {
+    +void Print(String filename)
+}
+
+@enduml

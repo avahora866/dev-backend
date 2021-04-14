@@ -2,7 +2,6 @@ package com.milk4u.doorstep.delivery.pdf;
 
 import com.spire.pdf.*;
 
-import javax.swing.text.Document;
 import java.awt.print.*;
 
 public class PrintingDroplist {

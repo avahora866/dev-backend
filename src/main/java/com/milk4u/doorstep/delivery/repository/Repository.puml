@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class CurrentOrderRepository {
+    +List<Optional<CurrentOrderEntity>> findByCustomerId(int id)
+}
+
+class DroplistRepository {
+    +List<Optional<DroplistEntity>> findByDriverId(int id)
+    +Optional<DroplistEntity> findByCustomerId(int id);
+}
+
+class ProductRepository {
+
+}
+
+class TrollyRepository {
+    +List<Optional<TrollyEntity>> findByCustomerId(int id);
+}
+
+class UserRepository {
+	+Optional<UserEntity> findByUsernameAndPassword(String username, String password);
+	+List<Optional<UserEntity>> findByType(String type);
+}
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Controller {
+	#userRepo UserRepository
+	#prodRepo ProductRepository
+	#dropListRepo DroplistRepository
+	#currentOrderRepo CurrentOrderRepository
+	#trollyRepo TrollyRepository
+	#emailSender EmailServiceImpl
+	+ResponseEntity<Optional<UserEntity>> verifyLogin(LoginDetails loginDetails)
+	+ResponseEntity<List<Optional<UserEntity>>> getUsers(String type)
+	+ResponseEntity<List<ProductEntity>> getProducts()
+    +ResponseEntity<String> editUsers(EditUser eu)
+    +Date convertToDateViaSqlTimestamp(LocalDateTime dateToConvert)
+    +ResponseEntity<String> addUser(AddUser au )
+    +ResponseEntity<String> delUser(int id)
+    +ResponseEntity<String> editProducts(EditProd ep )
+    +ResponseEntity<String> addProduct(AddProduct ap )
+    +ResponseEntity<String> delProduct(int pId )
+    +ResponseEntity<List<DroplistResponse>> getDroplist(int id )
+    +void updateDroplist()
+    +void delDroplist()
+    +void printDroplist(int id)
+    +ResponseEntity<List<Object>> getCurrentOrder(int id)
+    +ResponseEntity<List<CustomerResponse>> getTrolly(int id )
+    +ResponseEntity<Optional<ProductEntity>> addToTroly(TrollyDetails td )
+    +ResponseEntity<Optional<TrollyEntity>> updateTrolly(TrollyDetails td)
+    +ResponseEntity<String> delProductFromTrolly(int cstId, int prodId )
+    +ResponseEntity<String> delTrolly(int id )
+    +ResponseEntity<String> createOrder (Identification id)
+    +ResponseEntity<String> updateOrder(TrollyDetails td)
+    +ResponseEntity<Optional<ProductEntity>> delProductFromOrder(int cstId, int prodId)
+    +ResponseEntity<String> addToOrder(Identification id)
+    +ResponseEntity<String> delOrder(int id )
+    +void sendInvoice()
+    +void dailyMethodCall()
+}
+@enduml

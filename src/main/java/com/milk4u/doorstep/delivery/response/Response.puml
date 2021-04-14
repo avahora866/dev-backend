@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class CustomerResponse {
+    #productId: int
+    #name: string
+    #description: string
+    #price: double
+    #quantity: int
+    +int getProductId()
+    +void setProductId(int productId)
+    +String getName()
+    +void setName(String name)
+    +String getDescription()
+    +void setDescription(String description)
+    +Double getPrice()
+    +void setPrice(double price)
+    +int getQuantity()
+    +void setQuantity(int quantity)
+}
+
+class DroplistResponse {
+    #cstId: int
+    #email: String
+    #fName: String
+    #lName: String
+    #postcode: String
+    #orders: List<CustomerResponse>
+    +int getCstId()
+    +void setCstId(int cstId)
+    +String getEmail()
+    +void setEmail(String email)
+    +String getFName()
+    +void setFName(String fName)
+    +String getLName()
+    +void setLName(String lName)
+    +String getPostcode()
+    +void setPostcode(String postcode)
+    +List<CustomerResponse> getOrders()
+    +void setOrders(List<CustomerResponse> orders)
+}
+
+DroplistResponse <|-- CustomerResponse
+
+
+@enduml
