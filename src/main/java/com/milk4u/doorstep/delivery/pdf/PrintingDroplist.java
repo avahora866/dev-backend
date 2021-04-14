@@ -5,7 +5,7 @@ import com.spire.pdf.*;
 import javax.swing.text.Document;
 import java.awt.print.*;
 
-public class PrintingExample {
+public class PrintingDroplist {
     public static void Print(String filename) {
         //load the sample document
         PdfDocument pdf = new PdfDocument();

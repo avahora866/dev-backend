@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import com.milk4u.doorstep.delivery.response.CustomerResponse;
 
 @Component
-public class FirstPdf {
+public class Droplist {
     private static String FILE = "c:/Users/User/Documents/Droplist.pdf";
     private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18,
             Font.BOLD);

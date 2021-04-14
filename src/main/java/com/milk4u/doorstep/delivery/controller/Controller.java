@@ -5,10 +5,8 @@ import com.milk4u.doorstep.delivery.entity.*;
 import com.milk4u.doorstep.delivery.repository.*;
 import com.milk4u.doorstep.delivery.request.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +21,8 @@ import java.util.Date;
 import java.util.*;
 import java.util.List;
 
-import static com.milk4u.doorstep.delivery.pdf.FirstPdf.createPDF;
-import static com.milk4u.doorstep.delivery.pdf.PrintingExample.Print;
+import static com.milk4u.doorstep.delivery.pdf.Droplist.createPDF;
+import static com.milk4u.doorstep.delivery.pdf.PrintingDroplist.Print;
 
 
 @RestController // This means that this class is a Controller
@@ -41,8 +39,6 @@ public class Controller {
 	private CurrentOrderRepository currentOrderRepo;
 	@Autowired
 	private TrollyRepository trollyRepo;
-	@Autowired
-	private InvoiceRepository invoiceRepo;
 	@Autowired
 	private EmailServiceImpl emailSender;
 
@@ -190,19 +186,6 @@ public class Controller {
 					}
 				}
 
-				if(!(invoiceRepo.findByCustomerId(id).isEmpty())){
-					List<InvoiceEntity> rows2 = new ArrayList<>();
-					Iterator<InvoiceEntity> iterator = invoiceRepo.findAll().iterator();
-					while (iterator.hasNext()) {
-						rows2.add(iterator.next());
-					}
-					for(int i = 0; i < rows2.size(); i++){
-						if(rows2.get(i).getCustomerId() == id){
-							invoiceRepo.deleteById(rows2.get(i).getInvoiceId());
-						}
-					}
-				}
-
 				if(dropListRepo.findByCustomerId(id).isPresent()){
 					dropListRepo.deleteById(dropListRepo.findByCustomerId(id).get().getDroplistId());
 				}
@@ -221,22 +204,10 @@ public class Controller {
 					}
 				}
 
-				if(!(invoiceRepo.findByDriverId(id).isEmpty())){
-					List<InvoiceEntity> rows2 = new ArrayList<>();
-					Iterator<InvoiceEntity> iterator = invoiceRepo.findAll().iterator();
-					while (iterator.hasNext()) {
-						rows2.add(iterator.next());
-					}
-					for(int i = 0; i < rows2.size(); i++){
-						if(rows2.get(i).getDriverId() == id){
-							invoiceRepo.deleteById(rows2.get(i).getInvoiceId());
-						}
-					}
 				}
-			}
-
 			userRepo.deleteById(id);
 			return new ResponseEntity("Deletion succsefull", HttpStatus.OK);
+
 		}else{
 			return new ResponseEntity("UserID not found", HttpStatus.NOT_FOUND);
 		}
