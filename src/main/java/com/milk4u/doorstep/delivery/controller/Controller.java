@@ -40,6 +40,8 @@ public class Controller {
 	@Autowired
 	private TrollyRepository trollyRepo;
 	@Autowired
+	private InvoiceRepository invoiceRepo;
+	@Autowired
 	private EmailServiceImpl emailSender;
 
 	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
@@ -293,14 +295,28 @@ public class Controller {
 	}
 
 	@CrossOrigin(origins = "http://localhost:3000")
+	@PutMapping(path="/updateInvoice")
+	public void updateInvoice() {
+		Iterator<CurrentOrderEntity> allCurrOrders = currentOrderRepo.findAll().iterator();
+		while(allCurrOrders.hasNext()){
+			CurrentOrderEntity temp1 = allCurrOrders.next();
+			InvoiceEntity newInvoice = new InvoiceEntity();
+			newInvoice.setCustomerId(temp1.getCustomerId());
+			newInvoice.setProductId(temp1.getProductId());
+			newInvoice.setQuantity(temp1.getQuantity());
+			invoiceRepo.save(newInvoice);
+		}
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
 	@PutMapping(path="/updateDroplist")
 	public void updateDroplist() {
-		Iterator<CurrentOrderEntity> allCurrOrders = currentOrderRepo.findAll().iterator();
+		Iterator<InvoiceEntity> allInvoices = invoiceRepo.findAll().iterator();
 		List<Optional<UserEntity>> allDriver = userRepo.findByType("Driver");
 		List<Integer> cstIdsDone = new ArrayList<>();
 
-		while (allCurrOrders.hasNext()){
-			CurrentOrderEntity temp1 = allCurrOrders.next();
+		while (allInvoices.hasNext()){
+			InvoiceEntity temp1 = allInvoices.next();
 			if(!cstIdsDone.contains(temp1.getCustomerId())){
 				String cstArea = userRepo.findById(temp1.getCustomerId()).get().getPostcode();
 				int driver = 0;
@@ -336,6 +352,12 @@ public class Controller {
 	}
 
 	@CrossOrigin(origins = "http://localhost:3000")
+	@DeleteMapping(path="/delInvoice")
+	public void delInvoice() {
+		invoiceRepo.deleteAll();
+	}
+
+	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/printDroplist")
 	public void printDroplist(@RequestParam int id) {
 		List<Optional<DroplistEntity>> droplistRows = dropListRepo.findByDriverId(id);
@@ -347,13 +369,13 @@ public class Controller {
 		}
 
 		for(int i = 0; i < allCustomers.size(); i++){
-			List<Optional<CurrentOrderEntity>> currentOrderRow = currentOrderRepo.findByCustomerId(allCustomers.get(i).get().getUserId());
+			List<Optional<InvoiceEntity>> invoiceRow = invoiceRepo.findByCustomerId(allCustomers.get(i).get().getUserId());
 
 			List fin = new ArrayList();
 
-			for (int l = 0; l < currentOrderRow.size(); l++){
-				Optional<CurrentOrderEntity> order = currentOrderRow.get(l);
-				Optional<ProductEntity> product = prodRepo.findById(currentOrderRow.get(l).get().getProductId());
+			for (int l = 0; l < invoiceRow.size(); l++){
+				Optional<InvoiceEntity> order = invoiceRow.get(l);
+				Optional<ProductEntity> product = prodRepo.findById(invoiceRow.get(l).get().getProductId());
 				CustomerResponse cstResponse = new CustomerResponse();
 				cstResponse.setProductId(order.get().getProductId());
 				cstResponse.setName(product.get().getName());
@@ -366,9 +388,9 @@ public class Controller {
 			finalList.add(fin);
 		}
 		createPDF(userRepo.findById(id).get(), allCustomers, finalList);
-		Print("c:/Users/User/Documents/Droplist.pdf");
-		File myObj = new File("c:/Users/User/Documents/Droplist.pdf");
-		myObj.delete();
+//		Print("c:/Users/User/Documents/Droplist.pdf");
+//		File myObj = new File("c:/Users/User/Documents/Droplist.pdf");
+//		myObj.delete();
 
 	}
 
@@ -700,6 +722,8 @@ public class Controller {
 	@Scheduled(cron = "0 0 23 * * ?")
 	public void dailyMethodCall() {
 		delDroplist();
+		delInvoice();
+		updateInvoice();
 		updateDroplist();
 		sendInvoice();
 	}
