@@ -388,9 +388,9 @@ public class Controller {
 			finalList.add(fin);
 		}
 		createPDF(userRepo.findById(id).get(), allCustomers, finalList);
-//		Print("c:/Users/User/Documents/Droplist.pdf");
-//		File myObj = new File("c:/Users/User/Documents/Droplist.pdf");
-//		myObj.delete();
+		Print("c:/Users/User/Documents/Droplist.pdf");
+		File myObj = new File("c:/Users/User/Documents/Droplist.pdf");
+		myObj.delete();
 
 	}
 

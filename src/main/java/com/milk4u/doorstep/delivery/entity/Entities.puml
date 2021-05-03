@@ -48,6 +48,21 @@ class CurrentOrderEntity {
     +void setQuantity(int quantity)
 }
 
+class InvoiceEntity {
+    #invoiceId: int
+    #customerId: int
+    #productId: int
+    #quantity: int
+    +int getInvoiceId()
+    +void setInvoiceId(int invoiceId)
+    +int getCustomerId()
+    +void setCustomerId(int customerId)
+    +int getProductId()
+    +void setProductId(int productId)
+    +int getQuantity()
+    +void setQuantity(int quantity)
+}
+
 class TrollyEntity  {
     #trollyId: int
     #customerId: int
@@ -91,10 +106,12 @@ class ProductEntity {
 
 }
 
+InvoiceEntity <|-- UserEntity
 CurrentOrderEntity <|-- UserEntity
 TrollyEntity <|-- UserEntity
 DroplistEntity <|-- UserEntity
 ProductEntity <|-- CurrentOrderEntity
 ProductEntity <|-- TrollyEntity
+ProductEntity <|-- InvoiceEntity
 
 @enduml

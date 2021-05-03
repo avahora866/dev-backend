@@ -7,6 +7,7 @@ class Controller {
 	#dropListRepo DroplistRepository
 	#currentOrderRepo CurrentOrderRepository
 	#trollyRepo TrollyRepository
+	#invoiceRepo InvoiceRepository
 	#emailSender EmailServiceImpl
 	+ResponseEntity<Optional<UserEntity>> verifyLogin(LoginDetails loginDetails)
 	+ResponseEntity<List<Optional<UserEntity>>> getUsers(String type)
@@ -19,7 +20,9 @@ class Controller {
     +ResponseEntity<String> addProduct(AddProduct ap )
     +ResponseEntity<String> delProduct(int pId )
     +ResponseEntity<List<DroplistResponse>> getDroplist(int id )
+    +void updateInvoice()
     +void updateDroplist()
+    +void delInvoice()
     +void delDroplist()
     +void printDroplist(int id)
     +ResponseEntity<List<Object>> getCurrentOrder(int id)

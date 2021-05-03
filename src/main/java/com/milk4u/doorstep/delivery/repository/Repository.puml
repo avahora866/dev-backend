@@ -5,6 +5,10 @@ class CurrentOrderRepository {
     +List<Optional<CurrentOrderEntity>> findByCustomerId(int id)
 }
 
+class InvoiceRepository {
+    +List<Optional<InvoiceRepository>> findByCustomerId(int id)
+}
+
 class DroplistRepository {
     +List<Optional<DroplistEntity>> findByDriverId(int id)
     +Optional<DroplistEntity> findByCustomerId(int id);
