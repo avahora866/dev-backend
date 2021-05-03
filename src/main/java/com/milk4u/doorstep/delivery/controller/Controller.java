@@ -693,6 +693,9 @@ public class Controller {
         }
 	}
 
+
+
+
 	//Method runs at 11:00pm - 23:00
 	@Scheduled(cron = "0 0 23 * * ?")
 	public void dailyMethodCall() {
