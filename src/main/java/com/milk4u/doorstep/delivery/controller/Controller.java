@@ -680,7 +680,7 @@ public class Controller {
         Iterator<DroplistEntity> droplistRows = dropListRepo.findAll().iterator();
         List<UserEntity> customers = new ArrayList<>();
         List<UserEntity> drivers = new ArrayList<>();
-        List<Optional<CurrentOrderEntity>> currOrders = new ArrayList<>();
+        List<Optional<InvoiceEntity>> invoices = new ArrayList<>();
         List<CustomerResponse> cstOrders = new ArrayList<>();
         while(droplistRows.hasNext()){
             DroplistEntity temp = droplistRows.next();
@@ -689,17 +689,17 @@ public class Controller {
         }
 
         for(int i = 0; i < customers.size(); i++){
-            currOrders.addAll(currentOrderRepo.findByCustomerId(customers.get(i).getUserId()));
-            for(int j = 0; j < currOrders.size(); j++ ){
+            invoices.addAll(invoiceRepo.findByCustomerId(customers.get(i).getUserId()));
+            for(int j = 0; j < invoices.size(); j++ ){
                 CustomerResponse temp = new CustomerResponse();
-                temp.setProductId(currOrders.get(j).get().getProductId());
-                temp.setName(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getName());
-                temp.setDescription(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getDescription());
-                temp.setPrice(prodRepo.findById(currOrders.get(j).get().getProductId()).get().getPrice());
-                temp.setQuantity(currOrders.get(j).get().getQuantity());
+                temp.setProductId(invoices.get(j).get().getProductId());
+                temp.setName(prodRepo.findById(invoices.get(j).get().getProductId()).get().getName());
+                temp.setDescription(prodRepo.findById(invoices.get(j).get().getProductId()).get().getDescription());
+                temp.setPrice(prodRepo.findById(invoices.get(j).get().getProductId()).get().getPrice());
+                temp.setQuantity(invoices.get(j).get().getQuantity());
                 cstOrders.add(temp);
             }
-            currOrders.clear();
+            invoices.clear();
 
             String email = customers.get(i).getEmail();
             String subject = "Invoice for Customer Id: " + customers.get(i).getUserId();
