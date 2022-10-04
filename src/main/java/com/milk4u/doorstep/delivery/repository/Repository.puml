@@ -23,7 +23,7 @@ class TrollyRepository {
 }
 
 class UserRepository {
-	+Optional<UserEntity> findByUsernameAndPassword(String username, String password);
-	+List<Optional<UserEntity>> findByType(String type);
+	+Optional<UsersEntity> findByUsernameAndPassword(String username, String password);
+	+List<Optional<UsersEntity>> findByType(String type);
 }
 @enduml

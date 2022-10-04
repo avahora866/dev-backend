@@ -1,6 +1,6 @@
 package com.milk4u.doorstep.delivery.repository;
 
-import com.milk4u.doorstep.delivery.entity.UserEntity;
+import com.milk4u.doorstep.delivery.entity.UsersEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import com.milk4u.doorstep.delivery.entity.DroplistEntity;

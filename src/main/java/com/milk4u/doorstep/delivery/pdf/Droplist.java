@@ -11,7 +11,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.milk4u.doorstep.delivery.entity.UserEntity;
+import com.milk4u.doorstep.delivery.entity.UsersEntity;
 import org.springframework.stereotype.Component;
 import com.milk4u.doorstep.delivery.response.CustomerResponse;
 
@@ -25,7 +25,7 @@ public class Droplist {
     private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12,
             Font.BOLD);
 
-    public static void createPDF(UserEntity driver, java.util.List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses) {
+    public static void createPDF(UsersEntity driver, java.util.List<Optional<UsersEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses) {
         try {
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(FILE));
@@ -51,7 +51,7 @@ public class Droplist {
         document.addCreator("Abraar Vahora");
     }
 
-    private static void addTitlePage(Document document, UserEntity driver) throws DocumentException {
+    private static void addTitlePage(Document document, UsersEntity driver) throws DocumentException {
         Paragraph preface = new Paragraph();
         // We add one empty line
         addEmptyLine(preface, 1);
@@ -68,7 +68,7 @@ public class Droplist {
         document.newPage();
     }
 
-    private static void addContent(Document document, List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses) throws DocumentException {
+    private static void addContent(Document document, List<Optional<UsersEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses) throws DocumentException {
         for(int i = 0; i < allCustomers.size(); i++){
             Chapter catPart = new Chapter(new Paragraph("Customer ID: " + allCustomers.get(i).get().getUserId(), catFont), i + 1);
             Paragraph nameAndAreaPara = new Paragraph("Customer Details", subFont);

@@ -30,7 +30,7 @@ import static com.milk4u.doorstep.delivery.pdf.PrintingDroplist.Print;
 public class Controller {
 	
 	@Autowired
-	private UserRepository userRepo;
+	private UsersRepository userRepo;
 	@Autowired
 	private ProductRepository prodRepo;
 	@Autowired
@@ -47,7 +47,7 @@ public class Controller {
 	//Takes in a username and password - checks if they are present in database - ifPresent returns the type of the user - ifNotPresent returns a String
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path="/verifyLogin")
-	public ResponseEntity<Optional<UserEntity>>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
+	public ResponseEntity<Optional<UsersEntity>>  verifyLogin(@RequestBody LoginDetails loginDetails ) {
 		if(userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).isPresent()) {
 			String type = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getType();
 			int id = userRepo.findByUsernameAndPassword(loginDetails.getUserName(), loginDetails.getPassword()).get().getUserId();
@@ -63,9 +63,9 @@ public class Controller {
 	//Requires a string which will require the front-end to specify weather they are requesting customers, drivers or admins - returns a list of the specified Users
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path="/getUsers")
-	public ResponseEntity<List<Optional<UserEntity>>> getUsers(@RequestParam String type) {
+	public ResponseEntity<List<Optional<UsersEntity>>> getUsers(@RequestParam String type) {
 		if(type.equals("Admin") || type.equals("Driver") || type.equals("Customer")){
-			List<Optional<UserEntity>> rows = userRepo.findByType(type);
+			List<Optional<UsersEntity>> rows = userRepo.findByType(type);
 			return new ResponseEntity<>(rows, HttpStatus.OK);
 		}else{
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -91,7 +91,7 @@ public class Controller {
 	@PutMapping(path="/editUsers")
 	public ResponseEntity<String> editUsers(@RequestBody EditUser eu) {
 		if(userRepo.findById(eu.getId()).isPresent()){
-			UserEntity temp = userRepo.findById(eu.getId()).get();
+			UsersEntity temp = userRepo.findById(eu.getId()).get();
 			temp.setUsername(eu.getUserName());
 			temp.setPassword(eu.getPassword());
 			temp.setEmail(eu.getEmail());
@@ -124,7 +124,7 @@ public class Controller {
 			cal.add(Calendar.DATE, -1);
 			Date min = cal.getTime();
 			if(au.getDateOfBirth().before(compare) && au.getDateOfBirth().before(min)){
-				Optional<UserEntity> temp = Optional.of(new UserEntity());
+				Optional<UsersEntity> temp = Optional.of(new UsersEntity());
 				temp.get().setUsername(au.getUserName());
 				temp.get().setPassword(au.getPassword());
 				temp.get().setEmail(au.getEmail());
@@ -140,7 +140,7 @@ public class Controller {
 				return new ResponseEntity<>("Date of birth is invalid", HttpStatus.NOT_ACCEPTABLE);
 			}
 		}else{
-			UserEntity temp = new UserEntity();
+			UsersEntity temp = new UsersEntity();
 			temp.setUsername(au.getUserName());
 			temp.setPassword(au.getPassword());
 			temp.setEmail(au.getEmail());
@@ -312,7 +312,7 @@ public class Controller {
 	@PutMapping(path="/updateDroplist")
 	public void updateDroplist() {
 		Iterator<InvoiceEntity> allInvoices = invoiceRepo.findAll().iterator();
-		List<Optional<UserEntity>> allDriver = userRepo.findByType("Driver");
+		List<Optional<UsersEntity>> allDriver = userRepo.findByType("Driver");
 		List<Integer> cstIdsDone = new ArrayList<>();
 
 		while (allInvoices.hasNext()){
@@ -361,7 +361,7 @@ public class Controller {
 	@GetMapping(path="/printDroplist")
 	public void printDroplist(@RequestParam int id) {
 		List<Optional<DroplistEntity>> droplistRows = dropListRepo.findByDriverId(id);
-		List<Optional<UserEntity>> allCustomers = new ArrayList<>();
+		List<Optional<UsersEntity>> allCustomers = new ArrayList<>();
 		List<List<CustomerResponse>> finalList = new ArrayList<>();
 
 		for(int i = 0; i< droplistRows.size(); i++){
@@ -678,8 +678,8 @@ public class Controller {
 	@RequestMapping(path="/sendInvoice", method = RequestMethod.POST)
 	public void sendInvoice()  {
         Iterator<DroplistEntity> droplistRows = dropListRepo.findAll().iterator();
-        List<UserEntity> customers = new ArrayList<>();
-        List<UserEntity> drivers = new ArrayList<>();
+        List<UsersEntity> customers = new ArrayList<>();
+        List<UsersEntity> drivers = new ArrayList<>();
         List<Optional<InvoiceEntity>> invoices = new ArrayList<>();
         List<CustomerResponse> cstOrders = new ArrayList<>();
         while(droplistRows.hasNext()){

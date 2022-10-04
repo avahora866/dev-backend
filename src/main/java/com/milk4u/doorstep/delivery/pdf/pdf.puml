@@ -6,10 +6,10 @@ class Droplist {
     #catFont: font
     #subFont: font
     #smallBold: font
-    +void createPDF(UserEntity driver, java.util.List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
+    +void createPDF(UsersEntity driver, java.util.List<Optional<UsersEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
     +void addMetaData(Document document)
-    +void addTitlePage(Document document, UserEntity driver)
-    +void addContent(Document document, List<Optional<UserEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
+    +void addTitlePage(Document document, UsersEntity driver)
+    +void addContent(Document document, List<Optional<UsersEntity>> allCustomers, List<List<CustomerResponse>> allCustomerResponses)
     +void addEmptyLine(Paragraph paragraph, int number)
 }
 

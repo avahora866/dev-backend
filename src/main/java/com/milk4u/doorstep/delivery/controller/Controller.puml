@@ -9,8 +9,8 @@ class Controller {
 	#trollyRepo TrollyRepository
 	#invoiceRepo InvoiceRepository
 	#emailSender EmailServiceImpl
-	+ResponseEntity<Optional<UserEntity>> verifyLogin(LoginDetails loginDetails)
-	+ResponseEntity<List<Optional<UserEntity>>> getUsers(String type)
+	+ResponseEntity<Optional<UsersEntity>> verifyLogin(LoginDetails loginDetails)
+	+ResponseEntity<List<Optional<UsersEntity>>> getUsers(String type)
 	+ResponseEntity<List<ProductEntity>> getProducts()
     +ResponseEntity<String> editUsers(EditUser eu)
     +Date convertToDateViaSqlTimestamp(LocalDateTime dateToConvert)

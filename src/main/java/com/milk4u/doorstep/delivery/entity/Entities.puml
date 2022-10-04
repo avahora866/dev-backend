@@ -1,6 +1,6 @@
 @startuml
 'https://plantuml.com/class-diagram
-class UserEntity {
+class UsersEntity {
     #userId: int
     #username: string
     #password: string
@@ -106,10 +106,10 @@ class ProductEntity {
 
 }
 
-InvoiceEntity <|-- UserEntity
-CurrentOrderEntity <|-- UserEntity
-TrollyEntity <|-- UserEntity
-DroplistEntity <|-- UserEntity
+InvoiceEntity <|-- UsersEntity
+CurrentOrderEntity <|-- UsersEntity
+TrollyEntity <|-- UsersEntity
+DroplistEntity <|-- UsersEntity
 ProductEntity <|-- CurrentOrderEntity
 ProductEntity <|-- TrollyEntity
 ProductEntity <|-- InvoiceEntity
